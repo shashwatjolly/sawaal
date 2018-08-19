@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1086466113456",
+    "firebase_url": "https://sawaal-sgsj.firebaseio.com",
+    "project_id": "sawaal-sgsj",
+    "storage_bucket": "sawaal-sgsj.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086466113456:android:9655bb92636a7d33",
+        "android_client_info": {
+          "package_name": "com.sgsj.sawaal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1086466113456-pno6lhd022cp4reh5tqust1ee74unf9v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDyvIT1iPQKu_OAWpcs6WOlrRnuU14E5g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
