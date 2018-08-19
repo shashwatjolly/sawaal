@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Sawaal</string>
+    <string name="auth_failed">Username or Password is incorrect</string>
+
 </resources>
