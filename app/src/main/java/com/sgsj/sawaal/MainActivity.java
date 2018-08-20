@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -104,9 +105,28 @@ public class MainActivity extends AppCompatActivity {
                                     // there was an error
                                     Toast.makeText(MainActivity.this, getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
                                 } else {
-                                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                                    startActivity(intent);
-                                    finish();
+                                    FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+                                    if(user.isEmailVerified()) {
+                                        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                    else
+                                    {
+                                        user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if(task.isSuccessful()){
+                                                    Log.i("Success", "Yes");
+                                                }
+                                                else{
+                                                    Log.i("Success", "No");}
+                                            }
+                                        });
+
+                                        Toast.makeText(MainActivity.this,"Please verify your email first. A verification email has been sent to your registered email account.", Toast.LENGTH_LONG).show();
+                                    }
+
                                 }
                             }
                         });

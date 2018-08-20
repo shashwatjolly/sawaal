@@ -57,6 +57,20 @@
                 android:hint="Email"
                 android:inputType="textEmailAddress" />
         </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+            <EditText
+                android:id="@+id/reguname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Username"
+                android:inputType="text" />
+        </android.support.design.widget.TextInputLayout>
+
         <!--<EditText-->
             <!--android:id="@+id/regcollege"-->
             <!--android:layout_width="match_parent"-->

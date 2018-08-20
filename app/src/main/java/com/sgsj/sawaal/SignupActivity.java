@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,29 +19,108 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+
+import static java.sql.Types.NULL;
 
 public class SignupActivity extends AppCompatActivity {
 
-    private EditText inputEmail, inputPassword;
+    private EditText inputEmail, inputPassword,inputroll,inputnum,inputUname;
+    private DatabaseReference mDatabase;
     private Button btnSignIn, btnSignUp, btnResetPassword;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
+    private String college,branch,email,password,username,roll_no,mobile_num,score;
+
+    private void Call(){
+                        auth.getCurrentUser().reload()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                                if(auth.getCurrentUser().isEmailVerified())
+                                {
+                                    Log.e("MACHAYA","MACHAYA");
+                                    PerformSignup();
+                                }
+                                else
+                                {
+                                    Log.e("HAGGA","HAGGA");
+                                }
+                            }
+                        });
+
+    }
+
+    private void PerformSignup(){
+        auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Toast.makeText(SignupActivity.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+//                            FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+//                            user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<Void> task) {
+//                                    if(task.isSuccessful()){
+//                                        Log.i("Success", "Yes");
+//                                    }
+//                                    else{
+//                                        Log.i("Success", "No");}
+//                                }
+//                            });
+
+                            HashMap<String,String> info = new HashMap<>();
+                            info.put("Username",username);
+                            info.put("Email",email);
+                            info.put("Password",password);
+                            info.put("College",college);
+                            info.put("Branch",branch);
+                            info.put("Roll_No",roll_no);
+                            info.put("Mobile_No",mobile_num);
+                            info.put("Score",score);
+
+
+// ...
+                            mDatabase.child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(info);
+
+                            startActivity(new Intent(SignupActivity.this, HomeActivity.class));
+                            finish();
+
+                    }
+                });
+
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         progressBar = (ProgressBar) findViewById(R.id.regprogressBar);
         progressBar.setVisibility(View.GONE);
 
-        ///////////////////////////// SPINNER FOR COLLEGE ///////////////////////////////////
+        ///////////////////////////// SPINNER FOR COLLEGE //////////////////////////////////////////////////////
         final Spinner spinner = (Spinner) findViewById(R.id.collegespin);
         String[] colleges = new String[]{
                 "College",
@@ -88,12 +168,12 @@ public class SignupActivity extends AppCompatActivity {
                 String selectedItemText = (String) parent.getItemAtPosition(position);
                 // If user change the default selection
                 // First item is disable and it is used for hint
-                if(position > 0){
-                    // Notify the selected item text
-                    Toast.makeText
-                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
-                            .show();
+                college="";
+                if(position==0){
+//                     Notify the selected item text
                 }
+                else
+                    college=selectedItemText;
             }
 
             @Override
@@ -103,12 +183,12 @@ public class SignupActivity extends AppCompatActivity {
         });
 
 
-        ///////////////////////////// SPINNER FOR BRANCH /////////////////////////////////////
+        ///////////////////////////// SPINNER FOR BRANCH ///////////////////////////////////////////////////////////////
         final Spinner spinner1 = (Spinner) findViewById(R.id.branchspin);
 
         // Initializing a String Array
         String[] branches = new String[]{
-                "Branches",
+                "Branch",
                 "Computer Science and Engineering",
                 "Mathematics and Computing",
                 "Mechanical Engineering",
@@ -154,14 +234,17 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItemText = (String) parent.getItemAtPosition(position);
+                branch="";
                 // If user change the default selection
                 // First item is disable and it is used for hint
-                if(position > 0){
-                    // Notify the selected item text
-                    Toast.makeText
-                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
-                            .show();
+                if(position==0){
+//                     Notify the selected item text
+//                    Toast.makeText
+//                            (getApplicationContext(), "Select your branch", Toast.LENGTH_SHORT)
+//                            .show();
                 }
+                else
+                    branch=selectedItemText;
             }
 
             @Override
@@ -169,6 +252,10 @@ public class SignupActivity extends AppCompatActivity {
 
             }
         });
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
@@ -178,6 +265,13 @@ public class SignupActivity extends AppCompatActivity {
         inputEmail = (EditText) findViewById(R.id.regemail);
         inputPassword = (EditText) findViewById(R.id.regpassword);
         progressBar = (ProgressBar) findViewById(R.id.regprogressBar);
+
+        inputroll = (EditText) findViewById(R.id.regroll);
+        inputnum = (EditText) findViewById(R.id.regmob);
+        inputUname = (EditText) findViewById(R.id.reguname);
+
+
+
 //        btnResetPassword = (Button) findViewById(R.id.btn_reset_password);
 
 //        btnResetPassword.setOnClickListener(new View.OnClickListener() {
@@ -198,8 +292,12 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String email = inputEmail.getText().toString().trim();
-                String password = inputPassword.getText().toString().trim();
+                email = inputEmail.getText().toString().trim();
+                password = inputPassword.getText().toString().trim();
+                mobile_num = inputnum.getText().toString().trim();
+                roll_no = inputroll.getText().toString().trim();
+                score = "0";
+                username = inputUname.getText().toString().trim();
 
                 if (TextUtils.isEmpty(email)) {
                     Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
@@ -217,25 +315,31 @@ public class SignupActivity extends AppCompatActivity {
                 }
 
                 progressBar.setVisibility(View.VISIBLE);
-                //create user
-                auth.createUserWithEmailAndPassword(email, password)
+
+                auth.signInAnonymously()
                         .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                Toast.makeText(SignupActivity.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE);
-                                // If sign in fails, display a message to the user. If sign in succeeds
-                                // the auth state listener will be notified and logic to handle the
-                                // signed in user can be handled in the listener.
-                                if (!task.isSuccessful()) {
-                                    Toast.makeText(SignupActivity.this, "Authentication failed." + task.getException(),
-                                            Toast.LENGTH_SHORT).show();
+                                if (task.isSuccessful()) {
+                                    Log.d("TAG", "signInAnonymously:success");
+                                    if (auth.getCurrentUser().isEmailVerified() == false) {
+                                        auth.getCurrentUser().updateEmail(email);
+                                        auth.getCurrentUser().sendEmailVerification();
+                                        Log.i("TAG", "mail sent.....................................");
+                                        Call();
+                                    }
+                                    //updateUI(user);
                                 } else {
-                                    startActivity(new Intent(SignupActivity.this, MainActivity.class));
-                                    finish();
+                                    // If sign in fails, display a message to the user.
+                                    Log.i("TAG", "signInAnonymously:failure", task.getException());
+                                    Toast.makeText(getApplicationContext(), "Authentication failed.",
+                                            Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
+
+
+
 
             }
         });
