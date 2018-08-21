@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp">
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/regemail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp">
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/reguname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp">
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/regroll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -113,7 +113,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp">
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/regmob"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -126,7 +126,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp">
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/regpassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

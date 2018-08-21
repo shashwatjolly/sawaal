@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -20,6 +21,7 @@
         </activity>
         <activity android:name=".HomeActivity" />
         <activity android:name=".SignupActivity"></activity>
+        <service android:name="com.sgsj.sawaal.SignupActivity$OnClearFromRecentService" android:stopWithTask="false" />
     </application>
 
 </manifest>

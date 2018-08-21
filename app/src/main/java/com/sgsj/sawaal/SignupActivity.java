@@ -1,7 +1,12 @@
 package com.sgsj.sawaal;
 
+import android.app.ActivityManager;
+import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -48,6 +53,7 @@ public class SignupActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private String college,branch,email,password,username,roll_no,mobile_num,score;
 
+
     private void Call(){
                         auth.getCurrentUser().reload()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -73,36 +79,36 @@ public class SignupActivity extends AppCompatActivity {
                 .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Toast.makeText(SignupActivity.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SignupActivity.this, "Verification email has been sent to your email. Verification link will expire in 15 minutes and account will be deleted if not verified." + task.isSuccessful(), Toast.LENGTH_LONG).show();
                         progressBar.setVisibility(View.GONE);
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
-//                            FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
-//                            user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    if(task.isSuccessful()){
-//                                        Log.i("Success", "Yes");
-//                                    }
-//                                    else{
-//                                        Log.i("Success", "No");}
-//                                }
-//                            });
+                            FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+                            user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        Log.i("Success", "Yes");
+                                    }
+                                    else{
+                                        Log.i("Success", "No");}
+                                }
+                            });
 
-                            HashMap<String,String> info = new HashMap<>();
-                            info.put("Username",username);
-                            info.put("Email",email);
-                            info.put("Password",password);
-                            info.put("College",college);
-                            info.put("Branch",branch);
-                            info.put("Roll_No",roll_no);
-                            info.put("Mobile_No",mobile_num);
-                            info.put("Score",score);
-
-
-// ...
-                            mDatabase.child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(info);
+//                            HashMap<String,String> info = new HashMap<>();
+//                            info.put("Username",username);
+//                            info.put("Email",email);
+//                            info.put("Password",password);
+//                            info.put("College",college);
+//                            info.put("Branch",branch);
+//                            info.put("Roll_No",roll_no);
+//                            info.put("Mobile_No",mobile_num);
+//                            info.put("Score",score);
+//
+//
+//// ...
+//                            mDatabase.child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(info);
 
                             startActivity(new Intent(SignupActivity.this, HomeActivity.class));
                             finish();
@@ -115,6 +121,8 @@ public class SignupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+        startService(new Intent(getBaseContext(), OnClearFromRecentService.class));
+//        startService(new Intent(this, OnClearFromRecentService.class));
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         progressBar = (ProgressBar) findViewById(R.id.regprogressBar);
@@ -315,34 +323,129 @@ public class SignupActivity extends AppCompatActivity {
                 }
 
                 progressBar.setVisibility(View.VISIBLE);
+                PerformSignup();
+//                auth.signInAnonymously()
+//                        .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<AuthResult> task) {
+//                                if (task.isSuccessful()) {
+//                                    Log.d("TAG", "signInAnonymously:success");
+//                                    if (auth.getCurrentUser().isEmailVerified() == false) {
+//                                        auth.getCurrentUser().updateEmail(email);
+//                                        auth.getCurrentUser().sendEmailVerification();
+//                                        Log.i("TAG", "mail sent.....................................");
+//                                        Call();
+//                                    }
+//                                    //updateUI(user);
+//                                } else {
+//                                    // If sign in fails, display a message to the user.
+//                                    Log.i("TAG", "signInAnonymously:failure", task.getException());
+//                                    Toast.makeText(getApplicationContext(), "Authentication failed.",
+//                                            Toast.LENGTH_SHORT).show();
+//                                }
+//                            }
+//                        });
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        auth.getCurrentUser().reload()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
 
-                auth.signInAnonymously()
-                        .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    Log.d("TAG", "signInAnonymously:success");
-                                    if (auth.getCurrentUser().isEmailVerified() == false) {
-                                        auth.getCurrentUser().updateEmail(email);
-                                        auth.getCurrentUser().sendEmailVerification();
-                                        Log.i("TAG", "mail sent.....................................");
-                                        Call();
+                                        if(auth.getCurrentUser().isEmailVerified() == false) {
+                                            final FirebaseUser currentUser = auth.getCurrentUser();
+                                            currentUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Log.d("TAG","Deleted user");
+                                                        Toast.makeText(getApplicationContext(), "Verification link expired. Please signup again.", Toast.LENGTH_SHORT).show();
+                                                        startActivity(new Intent(SignupActivity.this, SignupActivity.class));
+                                                        finish();
+                                                    } else {
+                                                        Log.w("TAG","Could not delete user");
+                                                    }
+                                                }
+                                            });
+                                        }
+                                        else {
+                                            HashMap<String,String> info = new HashMap<>();
+                                            info.put("Username",username);
+                                            info.put("Email",email);
+                                            info.put("Password",password);
+                                            info.put("College",college);
+                                            info.put("Branch",branch);
+                                            info.put("Roll_No",roll_no);
+                                            info.put("Mobile_No",mobile_num);
+                                            info.put("Score",score);
+                                            mDatabase.child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(info);
+                                        }
                                     }
-                                    //updateUI(user);
-                                } else {
-                                    // If sign in fails, display a message to the user.
-                                    Log.i("TAG", "signInAnonymously:failure", task.getException());
-                                    Toast.makeText(getApplicationContext(), "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
+                                });
+
+                    }
+                }, 900000);
 
 
 
 
             }
         });
+    }
+
+    public static class OnClearFromRecentService extends Service {
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            return null;
+        }
+
+        @Override
+        public int onStartCommand(Intent intent, int flags, int startId) {
+            Log.d("ClearFromRecentService", "Service Started");
+            return START_NOT_STICKY;
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            final Context ct = this;
+            Log.d("ClearFromRecentService", "Service Destroyed");
+            ((ActivityManager)ct.getSystemService(ACTIVITY_SERVICE))
+                    .clearApplicationUserData();
+        }
+
+        @Override
+        public void onTaskRemoved(Intent rootIntent) {
+            Log.e("ClearFromRecentService", "END");
+            FirebaseAuth auth1;
+            auth1 = FirebaseAuth.getInstance();
+            final Context ct = this;
+            if(auth1.getCurrentUser() != null) {
+                if (auth1.getCurrentUser().isEmailVerified() == false) {
+//                    Intent newIntent = new Intent(ct, MainActivity.class);
+//                    newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(newIntent);
+//                    auth1 = FirebaseAuth.getInstance();
+                    final FirebaseUser currentUser = auth1.getCurrentUser();
+                    currentUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+
+                            if (task.isSuccessful()) {
+                                Log.d("TAG", "Deleted user");
+                                Toast.makeText(ct, "Verification link expired. Please signup again.", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(ct, MainActivity.class));
+                            } else {
+                                Log.w("TAG", "Could not delete user");
+                            }
+                        }
+                    });
+                }
+            }
+            stopSelf();
+        }
     }
 
 
