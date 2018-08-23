@@ -1,13 +1,24 @@
 package com.sgsj.sawaal;
 
+import android.*;
+import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.OpenableColumns;
+import android.provider.Settings;
+import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,23 +33,36 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -94,9 +118,15 @@ public class UploadFragment extends Fragment {
 
     private Toolbar mTopToolbar;
     private Button browsepdf, uploadpdf;
-    private EditText inputcode, inputcollege, inputprof, inputyear;
-    private String code, college, prof, year, date;
-    private Spinner spinner;
+    private EditText inputcode, inputprof, inputyear;
+    private TextView inputdisplaytext;
+    private String code, college, prof, year, date, type;
+    private ProgressBar progressBar;
+    private ProgressDialog progressDialog;
+    private StorageReference mStorageReference;
+    private DatabaseReference mDatabaseReference;
+    final static int PICK_PDF_CODE = 2342;
+//    private Spinner spinner;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -105,16 +135,53 @@ public class UploadFragment extends Fragment {
         mTopToolbar = (Toolbar) ((AppCompatActivity)getActivity()).findViewById(R.id.toolbar);
         mTopToolbar.setTitle("Upload Paper");
         setHasOptionsMenu(true);
+        return inflater.inflate(R.layout.fragment_upload, container, false);
 
-        uploadpdf = (Button)  ((AppCompatActivity)getActivity()).findViewById(R.id.btn_upload);
-        inputcode = (EditText) ((AppCompatActivity)getActivity()).findViewById(R.id.papercourse);
-        inputprof = (EditText) ((AppCompatActivity)getActivity()).findViewById(R.id.paperprof);
-        inputyear = (EditText) ((AppCompatActivity)getActivity()).findViewById(R.id.paperyear);
+    }
 
-        spinner = (Spinner) ((AppCompatActivity)getActivity()).findViewById(R.id.papercollege);
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.upload_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_favorite) {
+            Toast.makeText(getContext(), "Action clicked", Toast.LENGTH_LONG).show();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        uploadpdf = (Button)  getView().findViewById(R.id.btn_upload);
+        browsepdf = (Button) getView().findViewById(R.id.btn_browse);
+        inputcode = (EditText) getView().findViewById(R.id.papercourse);
+        inputprof = (EditText) getView().findViewById(R.id.paperprof);
+        inputyear = (EditText) getView().findViewById(R.id.paperyear);
+        inputdisplaytext = (TextView)  getView().findViewById(R.id.displaytext);
+        mStorageReference = FirebaseStorage.getInstance().getReference();
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("uploads");
+        progressBar = (ProgressBar) getView().findViewById(R.id.paperprogressBar);
+        progressBar.setVisibility(View.GONE);
+
+        //////////////////////////////////// SPINNER FOR COLLEGE ///////////////////////////////////////////////
+        final Spinner spinner1 = (Spinner) ((AppCompatActivity)getActivity()).findViewById(R.id.papercollege);
         String[] colleges = new String[]{
                 "College",
                 "IIT Guwahati",
+                "IIT Roorkee",
+                "IIT Bombay",
         };
 
         final List<String> colList = new ArrayList<>(Arrays.asList(colleges));
@@ -149,8 +216,8 @@ public class UploadFragment extends Fragment {
             }
         };
         spinnerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        spinner.setAdapter(spinnerArrayAdapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinner1.setAdapter(spinnerArrayAdapter);
+        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItemText = (String) parent.getItemAtPosition(position);
@@ -169,43 +236,227 @@ public class UploadFragment extends Fragment {
 
             }
         });
+
+
+        //////////////////////////////////// SPINNER FOR PAPER TYPE ///////////////////////////////////////////////
+        final Spinner spinner2 = (Spinner) ((AppCompatActivity)getActivity()).findViewById(R.id.papertype);
+        String[] types = new String[]{
+                "Type of Paper",
+                "Quiz 1",
+                "Midsem",
+                "Quiz 2",
+                "Endsem",
+        };
+
+        final List<String> typeList = new ArrayList<>(Arrays.asList(types));
+        final ArrayAdapter<String> spinnerArrayAdapter1 = new ArrayAdapter<String>(
+                getContext(),R.layout.support_simple_spinner_dropdown_item,typeList){
+            @Override
+            public boolean isEnabled(int position){
+                if(position == 0)
+                {
+                    // Disable the first item from Spinner
+                    // First item will be use for hint
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if(position == 0){
+                    // Set the hint text color gray
+                    tv.setTextColor(Color.GRAY);
+                }
+                else {
+                    tv.setTextColor(Color.WHITE);
+                }
+                return view;
+            }
+        };
+        spinnerArrayAdapter1.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        spinner2.setAdapter(spinnerArrayAdapter1);
+        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = (String) parent.getItemAtPosition(position);
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                type="";
+                if(position==0){
+//                     Notify the selected item text
+                }
+                else
+                    type=selectedItemText;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
         uploadpdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                code = inputcode.getText().toString().toUpperCase().trim();
+                code = inputcode.getText().toString();
+                Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
                 prof = inputprof.getText().toString();
+                Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
                 year = inputyear.getText().toString();
-                date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
+                Date datetemp = Calendar.getInstance().getTime();
+                SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+                String date = df.format(datetemp);
             }
         });
-        return inflater.inflate(R.layout.fragment_upload, container, false);
+
+        browsepdf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //for greater than lolipop versions we need the permissions asked on runtime
+                //so if the permission is not available user will go to the screen to allow storage permission
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(getContext(),
+//                        android.Manifest.permission.READ_EXTERNAL_STORAGE)
+//                        != PackageManager.PERMISSION_GRANTED) {
+//                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+//                    return;
+//                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(getContext(),
+                        android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_DENIED) {
+                    if(!shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                        Toast.makeText(getContext(), "Please select Allow for app to work", Toast.LENGTH_SHORT).show();
+                        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                        return;
+                    }
+                    else {
+                        Toast.makeText(getContext(), "Please select Permissions and turn on Storage for app to work", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:" + getActivity().getPackageName()));
+                        startActivity(intent);
+                        return;
+                    }
+                }
+                else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(getContext(),
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                                return;
+                }
+
+                //creating an intent for file chooser
+                Intent intent = new Intent();
+                intent.setType("application/pdf");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select File"), PICK_PDF_CODE);
+
+            }
+
+        });
+
+
 
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.upload_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        //when the user choses the file
+        if (requestCode == PICK_PDF_CODE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            //if a file is selected
+            if (data.getData() != null) {
+                //uploading the file
+                Uri uri = data.getData();
+                String uriString = uri.toString();
+                File myFile = new File(uriString);
+                String path = myFile.getAbsolutePath();
+                String displayName = null;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_favorite) {
-            Toast.makeText(getContext(), "Action clicked", Toast.LENGTH_LONG).show();
-            return true;
+                if (uriString.startsWith("content://")) {
+                    Cursor cursor = null;
+                    try {
+                        cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
+                        if (cursor != null && cursor.moveToFirst()) {
+                            displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                        }
+                    } finally {
+                        cursor.close();
+                    }
+                } else if (uriString.startsWith("file://")) {
+                    displayName = myFile.getName();
+                }
+                Toast.makeText(getContext(), displayName, Toast.LENGTH_SHORT).show();
+                inputdisplaytext.setText(displayName);
+                uploadFile(data.getData());
+            }else{
+                Toast.makeText(getContext(), "No file chosen", Toast.LENGTH_SHORT).show();
+            }
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
+    private void uploadFile(Uri filePath) {
+        //checking if file is available
+        if (filePath != null) {
+            //displaying progress dialog while image is uploading
+            final ProgressDialog progressDialog = new ProgressDialog(getContext());
+            progressDialog.setTitle("Uploading");
+            progressDialog.show();
 
-    // TODO: Rename method, update argument and hook method into UI event
+            final DatabaseReference dref1 = mDatabaseReference.child(code).child(year).child(type);
+            String file_name =  inputdisplaytext.getText().toString()+"_"+date+"_"+System.currentTimeMillis();
+            final HashMap<String,String> mapper = new HashMap<>();
+            mapper.put("DateOfUpload",date);
+            mapper.put("FileID",file_name);
+            mapper.put("Prof",prof);
+
+
+            //getting the storage reference
+            StorageReference sRef = mStorageReference.child("uploads/" + file_name);
+
+            //adding the file to reference
+            sRef.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            //dismissing the progress dialog
+                            progressDialog.dismiss();
+
+                            //displaying success toast
+                            Toast.makeText(getContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
+
+                            //adding an upload to firebase database
+                            String uploadId = mDatabaseReference.push().getKey();
+                            dref1.setValue(mapper);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            //displaying the upload progress
+                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                            progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
+                        }
+                    });
+        } else {
+            //display an error if no file is selected
+        }
+    }
+
+        // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);

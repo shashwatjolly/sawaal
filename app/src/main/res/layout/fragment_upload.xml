@@ -105,6 +105,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:spinnerMode="dropdown" />
+            <Spinner
+                android:id="@+id/papertype"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown" />
             <!--<EditText-->
             <!--android:id="@+id/regbranch"-->
             <!--android:layout_width="match_parent"-->
@@ -117,7 +122,9 @@
                 style="?android:attr/progressBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btn_browse"
                 android:layout_width="wrap_content"
@@ -127,6 +134,20 @@
                 android:background="@color/colorAccent"
                 android:padding="12dp"
                 android:text="Browse" />
+
+                <TextView
+                    android:id="@+id/displaytext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/btn_browse"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_toRightOf="@+id/btn_browse"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:text="No File Selected"
+                    android:textSize="18dp" />
+            </RelativeLayout>
 
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btn_upload"
