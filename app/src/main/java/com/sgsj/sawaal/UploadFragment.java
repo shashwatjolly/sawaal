@@ -53,6 +53,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -125,6 +126,7 @@ public class UploadFragment extends Fragment {
     private ProgressDialog progressDialog;
     private StorageReference mStorageReference;
     private DatabaseReference mDatabaseReference;
+    private Uri file_uri;
     final static int PICK_PDF_CODE = 2342;
 //    private Spinner spinner;
 
@@ -305,7 +307,7 @@ public class UploadFragment extends Fragment {
         uploadpdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                code = inputcode.getText().toString();
+                code = inputcode.getText().toString().replaceAll("\\s","").toUpperCase();
                 Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
                 prof = inputprof.getText().toString();
                 Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
@@ -313,7 +315,8 @@ public class UploadFragment extends Fragment {
                 Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
                 Date datetemp = Calendar.getInstance().getTime();
                 SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
-                String date = df.format(datetemp);
+                date = df.format(datetemp);
+                uploadFile(file_uri);
             }
         });
 
@@ -394,7 +397,7 @@ public class UploadFragment extends Fragment {
                 }
                 Toast.makeText(getContext(), displayName, Toast.LENGTH_SHORT).show();
                 inputdisplaytext.setText(displayName);
-                uploadFile(data.getData());
+                file_uri = data.getData();
             }else{
                 Toast.makeText(getContext(), "No file chosen", Toast.LENGTH_SHORT).show();
             }
@@ -415,7 +418,7 @@ public class UploadFragment extends Fragment {
             mapper.put("DateOfUpload",date);
             mapper.put("FileID",file_name);
             mapper.put("Prof",prof);
-
+            mapper.put("User", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
             //getting the storage reference
             StorageReference sRef = mStorageReference.child("uploads/" + file_name);
@@ -430,7 +433,6 @@ public class UploadFragment extends Fragment {
 
                             //displaying success toast
                             Toast.makeText(getContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
-
                             //adding an upload to firebase database
                             String uploadId = mDatabaseReference.push().getKey();
                             dref1.setValue(mapper);
