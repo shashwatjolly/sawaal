@@ -1,19 +1,21 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:id="@+id/fragment_find_container"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_marginBottom="?actionBarSize"-->
+    <!--tools:context="com.sgsj.sawaal.FindFragment">-->
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="?actionBarSize"
-    tools:context="com.sgsj.sawaal.FindFragment">
-
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:fitsSystemWindows="true"
-        android:background="@color/colorPrimary">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true"
+    android:background="@android:color/white">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:paddingLeft="24dp"
             android:paddingRight="24dp"
@@ -52,10 +54,12 @@
 
             <!-- Info Label -->
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/coursecodein"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                >
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/findcourse"
                     android:layout_width="match_parent"
@@ -68,7 +72,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                >
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/findyear"
                     android:layout_width="match_parent"
@@ -88,11 +93,25 @@
                 <!--android:layout_width="match_parent"-->
                 <!--android:layout_height="wrap_content"-->
                 <!--android:spinnerMode="dropdown" />-->
-            <Spinner
-                android:id="@+id/findtype"
+            <Button
+                android:id="@+id/typeofpaper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:spinnerMode="dropdown" />
+                android:layout_marginLeft="4dp"
+                android:background="@android:color/white"
+                android:drawableRight="@drawable/ic_arrow_drop_down_black_24dp"
+                android:onClick="selecttype"
+                android:text="Type of Paper"
+                android:textAlignment="viewStart"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="14dp"
+                android:textAllCaps="false"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="18dp"
+                android:stateListAnimator="@null"
+                />
+
+
             <!--<EditText-->
             <!--android:id="@+id/regbranch"-->
             <!--android:layout_width="match_parent"-->
@@ -132,17 +151,33 @@
                     <!--android:textSize="18dp" />-->
             <!--</RelativeLayout>-->
 
-            <android.support.v7.widget.AppCompatButton
+            <!--<android.support.v7.widget.AppCompatButton-->
+                <!--android:id="@+id/btn_find"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginBottom="24dp"-->
+                <!--android:layout_marginTop="10dp"-->
+                <!--android:background="@color/colorAccent"-->
+                <!--android:padding="12dp"-->
+                <!--android:text="Find Paper" />-->
+
+            <br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
                 android:id="@+id/btn_find"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/roundedbtnbg"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Find Paper"
+                app:spinning_bar_width="4dp"
+                app:spinning_bar_color="#FFF"
+                app:spinning_bar_padding="6dp"
                 android:layout_marginBottom="24dp"
                 android:layout_marginTop="10dp"
-                android:background="@color/colorAccent"
-                android:padding="12dp"
-                android:text="Find Paper" />
+                app:initialCornerAngle="45dp"
+                app:finalCornerAngle="45dp"/>
 
         </LinearLayout>
     </ScrollView>
 
-</FrameLayout>
+<!--</FrameLayout>-->

@@ -1,0 +1,193 @@
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="4dp"
+    android:layout_marginLeft="12dp"
+    android:layout_marginRight="12dp"
+    android:layout_marginBottom="12dp"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:padding="4dp"
+            >
+
+            <TextView
+                android:id="@+id/papercoursecode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CS222"
+                android:gravity="center_horizontal"
+                android:textSize="18dp"
+                android:textColor="@color/black"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/papertype"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Endsem"
+                android:gravity="center_horizontal"
+                android:textSize="18dp"
+                android:textColor="@color/black"
+                android:layout_weight="1"/>
+            <TextView
+                android:id="@+id/paperyear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="18dp"
+                android:textColor="@color/black"
+                android:gravity="center_horizontal"
+                android:text="2017"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/paperprof"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Prof: Chandan Karfa"
+                android:gravity="center_horizontal"
+                android:textSize="14dp"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/paperuploadedby"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Uploaded By: Chandan Karfa"
+                android:gravity="center_horizontal"
+                android:textSize="14dp"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:padding="8dp"
+            >
+
+            <Button
+                android:id="@+id/paperhackbtn"
+                android:foreground="?attr/selectableItemBackground"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="12dp"
+                android:layout_weight="1"
+                android:text="Hack"
+                android:background="@drawable/roundedbtnbg"
+                />
+
+            <Button
+                android:id="@+id/paperdownloadbtn"
+                android:foreground="?attr/selectableItemBackground"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="30dp"
+                android:layout_gravity="center_vertical"
+                android:text="Download"
+                android:layout_weight="1"
+                android:background="@drawable/roundedbtnbg"
+                />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!--<GridLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:columnCount="4"-->
+        <!--android:rowCount="4"-->
+        <!--android:padding="5dp">-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/papername"-->
+            <!--android:layout_columnSpan="3"-->
+            <!--android:layout_columnWeight="1"-->
+            <!--android:text="Temp"-->
+            <!--android:layout_rowWeight="1"/>-->
+
+        <!--<Button-->
+            <!--android:id="@+id/paperdownloadbtn"-->
+            <!--android:layout_height="10dp"-->
+            <!--android:layout_width="10dp"-->
+            <!--android:layout_columnSpan="1"-->
+            <!--android:layout_columnWeight="1"-->
+            <!--android:layout_rowSpan="2"-->
+            <!--android:layout_rowWeight="1"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/papercoursecode"-->
+            <!--android:layout_columnSpan="1"-->
+            <!--android:text="Temp"-->
+            <!--android:layout_columnWeight="1"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/paperyear"-->
+            <!--android:layout_columnSpan="1"-->
+            <!--android:text="Temp"-->
+            <!--android:layout_columnWeight="1"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/papertype"-->
+            <!--android:layout_columnSpan="1"-->
+            <!--android:text="Temp"-->
+            <!--android:layout_columnWeight="1"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/paperprof"-->
+            <!--android:layout_columnSpan="3"-->
+            <!--android:layout_columnWeight="1"-->
+            <!--android:text="Temp"-->
+            <!--android:layout_rowWeight="1"/>-->
+
+        <!--<Button-->
+            <!--android:id="@+id/paperhackbtn"-->
+            <!--android:layout_height="10dp"-->
+            <!--android:layout_width="10dp"-->
+            <!--android:layout_columnSpan="1"-->
+            <!--android:layout_columnWeight="1"-->
+            <!--android:layout_rowWeight="1"-->
+            <!--android:layout_rowSpan="2"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/paperuploadedby"-->
+            <!--android:layout_columnSpan="3"-->
+            <!--android:text="Temp"-->
+            <!--android:layout_columnWeight="1"/>-->
+
+    <!--</GridLayout>-->
+
+</android.support.v7.widget.CardView>

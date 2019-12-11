@@ -2,8 +2,9 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
-    android:background="@color/colorPrimary">
+    android:background="#FFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,7 +12,7 @@
         android:orientation="vertical"
         android:paddingLeft="24dp"
         android:paddingRight="24dp"
-        android:paddingTop="56dp">
+        android:paddingTop="0dp">
 
         <!--<ImageView-->
             <!--android:layout_width="wrap_content"-->
@@ -27,7 +28,7 @@
             android:fontFamily="@font/ananda"
             android:text="sawaal"
             android:textSize="100dp"
-            android:textColor="#FFFF"/>
+            android:textColor="#000"/>
 
         <!-- Email Label -->
         <!--<android.support.design.widget.TextInputLayout-->
@@ -46,6 +47,7 @@
 
         <!-- Info Label -->
         <android.support.design.widget.TextInputLayout
+            android:id="@+id/emailin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
@@ -59,6 +61,7 @@
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
+            android:id="@+id/unamein"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
@@ -67,7 +70,7 @@
                 android:id="@+id/reguname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Username"
+                android:hint="Name"
                 android:inputType="text" />
         </android.support.design.widget.TextInputLayout>
 
@@ -77,11 +80,12 @@
             <!--android:layout_height="wrap_content"-->
             <!--android:hint="College"-->
             <!--android:inputType="textEmailAddress" />-->
-        <Spinner
-            android:id="@+id/collegespin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:spinnerMode="dropdown" />
+        <!--<Spinner-->
+            <!--android:id="@+id/collegespin"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:spinnerMode="dropdown"-->
+            <!--/>-->
         <!--<EditText-->
             <!--android:id="@+id/regbranch"-->
             <!--android:layout_width="match_parent"-->
@@ -89,13 +93,31 @@
             <!--android:hint="Branch"-->
             <!--android:inputType="textEmailAddress" />-->
 
-        <Spinner
-            android:id="@+id/branchspin"
+        <!--<Spinner-->
+            <!--android:id="@+id/branchspin"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:spinnerMode="dropdown" />-->
+
+        <Button
+            android:id="@+id/branchbtnopt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:spinnerMode="dropdown" />
+            android:layout_marginLeft="4dp"
+            android:background="@android:color/white"
+            android:drawableRight="@drawable/ic_arrow_drop_down_black_24dp"
+            android:onClick="showbranchopt"
+            android:text="Branch"
+            android:textAlignment="viewStart"
+            android:layout_marginTop="14dp"
+            android:textAllCaps="false"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="18dp"
+            android:stateListAnimator="@null"
+            />
 
         <android.support.design.widget.TextInputLayout
+            android:id="@+id/rollin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
@@ -109,6 +131,7 @@
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
+            android:id="@+id/mobin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
@@ -122,16 +145,19 @@
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
+            android:id="@+id/passin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="8dp"
+            app:passwordToggleEnabled="true">
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/regpassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Password"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                />
         </android.support.design.widget.TextInputLayout>
 
         <!-- Password Label -->
@@ -155,18 +181,112 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/btn_reg"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:layout_marginTop="24dp"
-            android:padding="12dp"
-            android:text="Register"
-            android:background="@color/colorAccent"/>
+        <!--<android.support.v7.widget.AppCompatButton-->
+            <!--android:id="@+id/btn_reg"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="24dp"-->
+            <!--android:layout_marginTop="24dp"-->
+            <!--android:padding="12dp"-->
+            <!--android:text="Register"-->
+            <!--android:background="@color/colorAccent"/>-->
+
+
+        <!--<RelativeLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent">-->
+            <!--<android.support.v7.widget.AppCompatButton-->
+                <!--android:id="@+id/btn_browsedp"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginBottom="10dp"-->
+                <!--android:layout_marginTop="10dp"-->
+                <!--android:background="@drawable/roundedbtnbg"-->
+                <!--android:padding="12dp"-->
+                <!--android:text="Browse" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/dpuri"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_alignBottom="@+id/btn_browsedp"-->
+                <!--android:layout_marginBottom="15dp"-->
+                <!--android:layout_marginLeft="15dp"-->
+                <!--android:layout_marginRight="5dp"-->
+                <!--android:layout_toRightOf="@+id/btn_browsedp"-->
+                <!--android:ems="10"-->
+                <!--android:inputType="textPersonName"-->
+                <!--android:text="No Profile Picture Selected"-->
+                <!--android:textSize="16dp" />-->
+
+            <!--<de.hdodenhof.circleimageview.CircleImageView-->
+                <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+                <!--android:id="@+id/dp"-->
+                <!--android:layout_width="200dp"-->
+                <!--android:layout_height="200dp"-->
+                <!--android:layout_centerInParent="true"-->
+                <!--android:src="@drawable/ic_launcher_background"-->
+                <!--app:civ_border_color="@color/colorAccent"-->
+                <!--app:civ_border_width="3dp"-->
+                <!--android:layout_marginLeft="16dp"-->
+                <!--android:elevation="4dp"-->
+                <!--android:padding="10dp"-->
+                <!--/>-->
+        <!--</RelativeLayout>-->
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_launcher_background"
+            app:civ_border_color="@color/colorAccent"
+            app:civ_border_width="3dp"
+            android:elevation="4dp"
+            android:padding="10dp"
+            />
 
         <TextView
-            android:id="@+id/link_signup"
+            android:id="@+id/dpuri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:text="No profile picture selected"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="18dp" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_browsedp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/roundedbtnbg"
+            android:padding="12dp"
+            android:text="Browse" />
+
+        <br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
+            android:id="@+id/btn_reg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/roundedbtnbg"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Register"
+            app:spinning_bar_width="4dp"
+            app:spinning_bar_color="#FFF"
+            app:spinning_bar_padding="6dp"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="40dp"
+            app:initialCornerAngle="45dp"
+            app:finalCornerAngle="45dp"
+            />
+
+        <TextView
+            android:id="@+id/link_signin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"

@@ -2,11 +2,15 @@ package com.sgsj.sawaal;
 
 import android.*;
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -16,10 +20,13 @@ import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,7 +44,7 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import static com.sgsj.sawaal.HomeActivity.isathome;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,8 +52,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -63,8 +74,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
+
 import static android.app.Activity.RESULT_OK;
 
+import static com.sgsj.sawaal.HomeActivity.uploadname;
+import static com.sgsj.sawaal.HomeActivity.uploadurl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -79,6 +94,8 @@ public class UploadFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private FirebaseAuth auth;
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -115,18 +132,22 @@ public class UploadFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        auth=FirebaseAuth.getInstance();
     }
 
     private Toolbar mTopToolbar;
-    private Button browsepdf, uploadpdf;
+    private CircularProgressButton uploadpdf;
+    private Button browsepdf,btntype;
     private EditText inputcode, inputprof, inputyear;
     private TextView inputdisplaytext;
-    private String code, college, prof, year, date, type;
+    private String code, college, prof, year, date, type="Quiz 1", scorestr ,fullname;
     private ProgressBar progressBar;
     private ProgressDialog progressDialog;
     private StorageReference mStorageReference;
     private DatabaseReference mDatabaseReference;
     private Uri file_uri;
+    private Integer score;
+    private boolean isthere;
     final static int PICK_PDF_CODE = 2342;
 //    private Spinner spinner;
 
@@ -134,9 +155,10 @@ public class UploadFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        mTopToolbar = (Toolbar) ((AppCompatActivity)getActivity()).findViewById(R.id.toolbar);
-        mTopToolbar.setTitle("Upload Paper");
+//        mTopToolbar = (Toolbar) ((AppCompatActivity)getActivity()).findViewById(R.id.toolbar);
+//        mTopToolbar.setTitle("Upload Paper");
         setHasOptionsMenu(true);
+        ((HomeActivity) getActivity()).getSupportActionBar().setTitle("Upload Paper");
         return inflater.inflate(R.layout.fragment_upload, container, false);
 
     }
@@ -166,147 +188,79 @@ public class UploadFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        uploadpdf = (Button)  getView().findViewById(R.id.btn_upload);
+        isathome=false;
+        btntype = getView().findViewById(R.id.paperbtn);
+        uploadpdf = getView().findViewById(R.id.btn_upload);
         browsepdf = (Button) getView().findViewById(R.id.btn_browse);
         inputcode = (EditText) getView().findViewById(R.id.papercourse);
         inputprof = (EditText) getView().findViewById(R.id.paperprof);
         inputyear = (EditText) getView().findViewById(R.id.paperyear);
         inputdisplaytext = (TextView)  getView().findViewById(R.id.displaytext);
         mStorageReference = FirebaseStorage.getInstance().getReference();
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("uploads");
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Uploads");
         progressBar = (ProgressBar) getView().findViewById(R.id.paperprogressBar);
         progressBar.setVisibility(View.GONE);
 
-        //////////////////////////////////// SPINNER FOR COLLEGE ///////////////////////////////////////////////
-        final Spinner spinner1 = (Spinner) ((AppCompatActivity)getActivity()).findViewById(R.id.papercollege);
-        String[] colleges = new String[]{
-                "College",
-                "IIT Guwahati",
-                "IIT Roorkee",
-                "IIT Bombay",
-        };
+        if(uploadurl!=null)
+            file_uri = uploadurl;
 
-        final List<String> colList = new ArrayList<>(Arrays.asList(colleges));
-        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
-                getContext(),R.layout.support_simple_spinner_dropdown_item,colList){
+        if(uploadname!="")
+            inputdisplaytext.setText(uploadname);
+
+        final TextInputLayout coursecodein = getView().findViewById(R.id.coursecodein1);
+        coursecodein.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean isEnabled(int position){
-                if(position == 0)
-                {
-                    // Disable the first item from Spinner
-                    // First item will be use for hint
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view;
-                if(position == 0){
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                }
-                else {
-                    tv.setTextColor(Color.WHITE);
-                }
-                return view;
-            }
-        };
-        spinnerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        spinner1.setAdapter(spinnerArrayAdapter);
-        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItemText = (String) parent.getItemAtPosition(position);
-                // If user change the default selection
-                // First item is disable and it is used for hint
-                college="";
-                if(position==0){
-//                     Notify the selected item text
-                }
-                else
-                    college=selectedItemText;
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() < 1) {
+                    coursecodein.setError("Course code cannot be empty");
+                }
+
+                if (s.length() > 0) {
+                    coursecodein.setErrorEnabled(false);
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
 
             }
         });
 
-
-        //////////////////////////////////// SPINNER FOR PAPER TYPE ///////////////////////////////////////////////
-        final Spinner spinner2 = (Spinner) ((AppCompatActivity)getActivity()).findViewById(R.id.papertype);
-        String[] types = new String[]{
-                "Type of Paper",
-                "Quiz 1",
-                "Midsem",
-                "Quiz 2",
-                "Endsem",
-        };
-
-        final List<String> typeList = new ArrayList<>(Arrays.asList(types));
-        final ArrayAdapter<String> spinnerArrayAdapter1 = new ArrayAdapter<String>(
-                getContext(),R.layout.support_simple_spinner_dropdown_item,typeList){
+        final TextInputLayout yearin = getView().findViewById(R.id.yearin);
+        yearin.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean isEnabled(int position){
-                if(position == 0)
-                {
-                    // Disable the first item from Spinner
-                    // First item will be use for hint
-                    return false;
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() < 1) {
+                    yearin.setError("Year cannot be empty");
                 }
-                else
-                {
-                    return true;
+
+                if (s.length() > 0) {
+                    yearin.setErrorEnabled(false);
                 }
             }
             @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view;
-                if(position == 0){
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                }
-                else {
-                    tv.setTextColor(Color.WHITE);
-                }
-                return view;
-            }
-        };
-        spinnerArrayAdapter1.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        spinner2.setAdapter(spinnerArrayAdapter1);
-        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItemText = (String) parent.getItemAtPosition(position);
-                // If user change the default selection
-                // First item is disable and it is used for hint
-                type="";
-                if(position==0){
-//                     Notify the selected item text
-                }
-                else
-                    type=selectedItemText;
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+            public void afterTextChanged(Editable s) {
             }
         });
-
 
         uploadpdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(!auth.getCurrentUser().isEmailVerified())
+                {
+                    Toast.makeText(getContext(), "Please Verify Your Email", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 code = inputcode.getText().toString().replaceAll("\\s","").toUpperCase();
                 Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
                 prof = inputprof.getText().toString();
@@ -316,7 +270,42 @@ public class UploadFragment extends Fragment {
                 Date datetemp = Calendar.getInstance().getTime();
                 SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
                 date = df.format(datetemp);
-                uploadFile(file_uri);
+
+                if(code.length()==0) {
+                    coursecodein.setError("Course code cannot be empty");
+                }
+                if(year.length()==0) {
+                    yearin.setError("Course code cannot be empty");
+                }
+
+                if(code!="" && year!="" && type!="" && file_uri!=null) {uploadpdf.startAnimation(); extractname();}
+                else if(code!="" && year!="" && type!="" && file_uri==null) {
+                    Toast.makeText(getContext(), "Please select a file", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+
+        btntype.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Choose Paper Type");
+
+// add a list
+                final String[] branches = {"Quiz 1", "Midsem", "Quiz 2", "Endsem" , "Other"};
+                builder.setItems(branches, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        btntype.setText(branches[which]);
+                        type = (String) btntype.getText();
+                    }
+                });
+
+// create and show the alert dialog
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
 
@@ -331,27 +320,11 @@ public class UploadFragment extends Fragment {
 //                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 //                    return;
 //                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(getContext(),
-                        android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                        == PackageManager.PERMISSION_DENIED) {
-                    if(!shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                        Toast.makeText(getContext(), "Please select Allow for app to work", Toast.LENGTH_SHORT).show();
-                        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                        return;
-                    }
-                    else {
-                        Toast.makeText(getContext(), "Please select Permissions and turn on Storage for app to work", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.parse("package:" + getActivity().getPackageName()));
-                        startActivity(intent);
-                        return;
-                    }
-                }
-                else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(getContext(),
-                            android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                                return;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                    return;
                 }
 
                 //creating an intent for file chooser
@@ -365,6 +338,37 @@ public class UploadFragment extends Fragment {
         });
 
 
+
+    }
+
+    public void extractname()
+    {
+        final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users"); //Path in database where to check
+        Query query = testRef.orderByChild("Email").equalTo(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
+                        // do something with the individual "issues"
+                        Log.e("check",issue.getKey().toString());
+
+                        fullname = issue.child("Username").getValue().toString();
+                        checkPaperandUpload();
+
+
+                    }
+
+                } else {
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -410,18 +414,29 @@ public class UploadFragment extends Fragment {
             //displaying progress dialog while image is uploading
             final ProgressDialog progressDialog = new ProgressDialog(getContext());
             progressDialog.setTitle("Uploading");
-            progressDialog.show();
+//            progressDialog.show();
+//            uploadpdf.startAnimation();
 
-            final DatabaseReference dref1 = mDatabaseReference.child(code).child(year).child(type);
-            String file_name =  inputdisplaytext.getText().toString()+"_"+date+"_"+System.currentTimeMillis();
+
+            final String uniqueId = mDatabaseReference.push().getKey();
+            final DatabaseReference dref1 = mDatabaseReference.child(uniqueId);
+            final String file_name =  inputdisplaytext.getText().toString()+"_"+date+"_"+System.currentTimeMillis();
             final HashMap<String,String> mapper = new HashMap<>();
+            mapper.put("CourseCode",code);
+//            mapper.put("College",college);
+            mapper.put("Year",year);
+            mapper.put("Type",type);
             mapper.put("DateOfUpload",date);
-            mapper.put("FileID",file_name);
+            mapper.put("FileName",file_name);
             mapper.put("Prof",prof);
-            mapper.put("User", FirebaseAuth.getInstance().getCurrentUser().getUid());
+            mapper.put("User_Email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            mapper.put("Username",fullname);
+            mapper.put("Course_Year",code+"_"+year);
+            mapper.put("Course_Type",code+"_"+type);
+            mapper.put("Course_Year_Type",code+"_"+year+"_"+type);
 
             //getting the storage reference
-            StorageReference sRef = mStorageReference.child("uploads/" + file_name);
+            StorageReference sRef = mStorageReference.child("Uploads/" + file_name);
 
             //adding the file to reference
             sRef.putFile(filePath)
@@ -429,19 +444,40 @@ public class UploadFragment extends Fragment {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             //dismissing the progress dialog
-                            progressDialog.dismiss();
+//                            progressDialog.dismiss();
+                            Bitmap bmp = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.tickicon);
+                            uploadpdf.doneLoadingAnimation(Color.parseColor("#FFC107"), bmp);
 
                             //displaying success toast
                             Toast.makeText(getContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
                             //adding an upload to firebase database
-                            String uploadId = mDatabaseReference.push().getKey();
-                            dref1.setValue(mapper);
+                            final String uploadId = mDatabaseReference.push().getKey();
+
+                            StorageReference filepath = mStorageReference.child("Uploads/").child(file_name);
+                            filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    mapper.put("FileUrl",uri.toString());
+                                    dref1.setValue(mapper);
+                                    increaseScoreUpload();
+                                    uploadpdf.revertAnimation();
+                                    uploadpdf.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.roundedbtnbg));
+//               Toast.makeText(getContext(), downloadUrl.toString(), Toast.LENGTH_SHORT).show();
+//                                    Log.e("link", downloadUrl.toString());
+//                                    downloadFile(downloadUrl, filename);
+                                }
+                            });
+
+
+//                            final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+//                            testRef.child("Score").setValue(scorestr);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
-                            progressDialog.dismiss();
+//                            progressDialog.dismiss();
+                            uploadpdf.revertAnimation();
                             Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     })
@@ -450,7 +486,8 @@ public class UploadFragment extends Fragment {
                         public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                             //displaying the upload progress
                             double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                            progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
+                            if((int)progress>0) uploadpdf.setProgress((int)progress);
+//                            progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
                         }
                     });
         } else {
@@ -458,6 +495,55 @@ public class UploadFragment extends Fragment {
         }
     }
 
+
+    public void increaseScoreUpload() {
+        final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()); //Path in database where to check
+        testRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    scorestr = dataSnapshot.child("Score").getValue().toString();
+                    score = Integer.parseInt(scorestr);
+//                            Toast.makeText(getContext(), filename, Toast.LENGTH_SHORT).show();
+                    score = score + 50;
+                    testRef.child("Score").setValue(score);
+                }
+                else{                                                                                       //If username not in database
+                    Log.e("Fail", "Score Increase Upload");
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Database should do nothing on Cancelling the query
+            }
+        });
+    }
+
+    public void checkPaperandUpload() {
+        if(type!="Other") {
+            final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads"); //Path in database where to check
+            Query query = testRef.orderByChild("Course_Year_Type").equalTo(code + "_" + year + "_" + type);
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        // dataSnapshot is the "issue" node with all children with id 0
+                        Toast.makeText(getContext(), "Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
+                        uploadpdf.revertAnimation();
+                        // GIVE HACK OPTION
+                    } else {
+                        uploadFile(file_uri);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+        else uploadFile(file_uri);
+    }
         // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -484,6 +570,8 @@ public class UploadFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+
 
     /**
      * This interface must be implemented by activities that contain this

@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Sawaal.iml" filepath="$PROJECT_DIR$/Sawaal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Sawaal9.iml" filepath="$PROJECT_DIR$/Sawaal9.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/sawaal.iml" filepath="$PROJECT_DIR$/sawaal.iml" />
     </modules>
   </component>
 </project>

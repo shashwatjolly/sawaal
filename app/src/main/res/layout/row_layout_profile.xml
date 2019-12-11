@@ -1,0 +1,156 @@
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView1"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="8dp"
+    android:layout_margin="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:padding="4dp"
+            >
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/profileimg"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_launcher_background"
+                app:civ_border_color="@color/colorPrimaryDark"
+                app:civ_border_width="3dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:elevation="8dp"
+                />
+
+            <TextView
+                android:id="@+id/profilename"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Name"
+                android:gravity="center_horizontal"
+                android:layout_gravity="center_vertical"
+                android:textSize="16dp"
+                android:textColor="@color/black"
+                android:layout_weight="1"
+                android:transitionName="profilename"/>
+            <TextView
+                android:id="@+id/profilescore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16dp"
+                android:textColor="@color/black"
+                android:gravity="center_horizontal"
+                android:layout_gravity="center_vertical"
+                android:text="Score"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!--<GridLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:columnCount="4"-->
+    <!--android:rowCount="4"-->
+    <!--android:padding="5dp">-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/papername"-->
+    <!--android:layout_columnSpan="3"-->
+    <!--android:layout_columnWeight="1"-->
+    <!--android:text="Temp"-->
+    <!--android:layout_rowWeight="1"/>-->
+
+    <!--<Button-->
+    <!--android:id="@+id/paperdownloadbtn"-->
+    <!--android:layout_height="10dp"-->
+    <!--android:layout_width="10dp"-->
+    <!--android:layout_columnSpan="1"-->
+    <!--android:layout_columnWeight="1"-->
+    <!--android:layout_rowSpan="2"-->
+    <!--android:layout_rowWeight="1"/>-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/papercoursecode"-->
+    <!--android:layout_columnSpan="1"-->
+    <!--android:text="Temp"-->
+    <!--android:layout_columnWeight="1"/>-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/paperyear"-->
+    <!--android:layout_columnSpan="1"-->
+    <!--android:text="Temp"-->
+    <!--android:layout_columnWeight="1"/>-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/papertype"-->
+    <!--android:layout_columnSpan="1"-->
+    <!--android:text="Temp"-->
+    <!--android:layout_columnWeight="1"/>-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/paperprof"-->
+    <!--android:layout_columnSpan="3"-->
+    <!--android:layout_columnWeight="1"-->
+    <!--android:text="Temp"-->
+    <!--android:layout_rowWeight="1"/>-->
+
+    <!--<Button-->
+    <!--android:id="@+id/paperhackbtn"-->
+    <!--android:layout_height="10dp"-->
+    <!--android:layout_width="10dp"-->
+    <!--android:layout_columnSpan="1"-->
+    <!--android:layout_columnWeight="1"-->
+    <!--android:layout_rowWeight="1"-->
+    <!--android:layout_rowSpan="2"/>-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/paperuploadedby"-->
+    <!--android:layout_columnSpan="3"-->
+    <!--android:text="Temp"-->
+    <!--android:layout_columnWeight="1"/>-->
+
+    <!--</GridLayout>-->
+
+    <!--<GridLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:columnCount="2"-->
+        <!--android:rowCount="1"-->
+        <!--android:padding="10dp">-->
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/profilename"-->
+            <!--android:text="Left"-->
+            <!--android:layout_columnWeight="1"-->
+            <!--/>-->
+
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/profilescore"-->
+            <!--android:text="right"-->
+            <!--android:layout_marginRight="0dp"-->
+            <!--android:gravity="right"-->
+            <!--android:layout_columnWeight="1"-->
+            <!--/>-->
+    <!--</GridLayout>-->
+</android.support.v7.widget.CardView>

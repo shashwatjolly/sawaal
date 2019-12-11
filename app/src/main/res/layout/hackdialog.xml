@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingTop="14dp"
+    android:orientation="vertical">
+
+    <RadioGroup
+        android:id="@+id/radioGroup1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <RadioButton
+            android:id="@+id/radio0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:textSize="16dp"
+            android:text="Paper does not match attributes" />
+
+        <RadioButton
+            android:id="@+id/radio1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:text="Paper partially illegible" />
+
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:inputType="textMultiLine"
+        android:layout_marginTop="14dp"
+        android:background="@null"
+        android:textSize="18dp"
+        android:layout_marginLeft="6dp"
+        android:hint="Enter comments here" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="14dp"
+        android:paddingBottom="6dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="6dp"
+        android:clipToPadding="false">
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Have a replacement?"-->
+            <!--android:layout_gravity="center_vertical"-->
+            <!--android:textSize="16dp"-->
+            <!--android:layout_marginBottom="8dp"-->
+            <!--android:layout_marginRight="8dp"/>-->
+
+        <!--<Button-->
+            <!--android:id="@+id/browser"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Browse"-->
+            <!--android:minHeight="30dp"-->
+            <!--android:background="@drawable/roundedbtnbg"/>-->
+
+        <br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
+            android:id="@+id/browser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/roundedbtnbg"
+            android:text="Browse"
+            app:spinning_bar_width="4dp"
+            app:spinning_bar_color="#FFF"
+            app:spinning_bar_padding="6dp"
+            app:initialCornerAngle="45dp"
+            app:finalCornerAngle="45dp"
+            android:minHeight="30dp"/>
+
+        <TextView
+            android:id="@+id/displaytextbrowser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/browser"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_toRightOf="@+id/browser"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="No File Selected"
+            android:textSize="16dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
+

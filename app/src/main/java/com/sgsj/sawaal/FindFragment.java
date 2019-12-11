@@ -2,11 +2,14 @@ package com.sgsj.sawaal;
 
 import android.*;
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
+import android.app.FragmentTransaction;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -17,13 +20,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.transition.Slide;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,10 +49,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -55,9 +65,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
+import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
+
+
 import static android.content.Context.DOWNLOAD_SERVICE;
+import static com.sgsj.sawaal.HomeActivity.isathome;
 
 
 /**
@@ -74,9 +89,12 @@ public class FindFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    public static List<Data> paperdetails;
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private FirebaseAuth auth;
 
     private OnFragmentInteractionListener mListener;
 
@@ -109,24 +127,30 @@ public class FindFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        auth=FirebaseAuth.getInstance();
     }
 
-    private Toolbar mTopToolbar;
+    private Toolbar toolbar;
     private EditText inputcode, inputyear;
-    private String code, year, type, filename;
-    private Button findpdf;
+    private String code="", year="", type="", filename="";
+    private CircularProgressButton findpdf;
+    private Button btntype;
     private DatabaseReference mDatabaseReference;
     private StorageReference mStorageReference;
     private ProgressBar progressBar;
     private Uri downloadUrl;
+    private TextInputLayout coursecodein;
+    public static ArrayList<HashMap<String, String> > datalist;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        mTopToolbar = (Toolbar) ((AppCompatActivity)getActivity()).findViewById(R.id.toolbar);
-        mTopToolbar.setTitle("Find Paper");
+//        mTopToolbar = (Toolbar) ((AppCompatActivity)getActivity()).findViewById(R.id.toolbar);
+//        mTopToolbar.setTitle("Find Paper");
         setHasOptionsMenu(true);
+        ((HomeActivity) getActivity()).getSupportActionBar().setTitle("Find Paper");
         return inflater.inflate(R.layout.fragment_find, container, false);
     }
 
@@ -155,132 +179,308 @@ public class FindFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        findpdf = (Button)  getView().findViewById(R.id.btn_find);
+        isathome=true;
+//        toolbar = getView().findViewById(R.id.toolbar);
+//        toolbar.setTitle("Find Paper");
+        findpdf = getView().findViewById(R.id.btn_find);
         inputcode = (EditText) getView().findViewById(R.id.findcourse);
         inputyear = (EditText) getView().findViewById(R.id.findyear);
         mStorageReference = FirebaseStorage.getInstance().getReference();
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference("uploads");
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("Uploads");
         progressBar = (ProgressBar) getView().findViewById(R.id.findprogressBar);
+        coursecodein = getView().findViewById(R.id.coursecodein);
         progressBar.setVisibility(View.GONE);
+        paperdetails = new ArrayList<>();
 
-        //////////////////////////////////// SPINNER FOR PAPER TYPE ///////////////////////////////////////////////
-        final Spinner spinner2 = (Spinner) ((AppCompatActivity)getActivity()).findViewById(R.id.findtype);
-        String[] types = new String[]{
-                "Type of Paper",
-                "Quiz 1",
-                "Midsem",
-                "Quiz 2",
-                "Endsem",
-        };
+        btntype = getView().findViewById(R.id.typeofpaper);
 
-        final List<String> typeList = new ArrayList<>(Arrays.asList(types));
-        final ArrayAdapter<String> spinnerArrayAdapter1 = new ArrayAdapter<String>(
-                getContext(),R.layout.support_simple_spinner_dropdown_item,typeList){
+
+
+        coursecodein.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean isEnabled(int position){
-                if(position == 0)
-                {
-                    // Disable the first item from Spinner
-                    // First item will be use for hint
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view;
-                if(position == 0){
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                }
-                else {
-                    tv.setTextColor(Color.WHITE);
-                }
-                return view;
-            }
-        };
-        spinnerArrayAdapter1.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        spinner2.setAdapter(spinnerArrayAdapter1);
-        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItemText = (String) parent.getItemAtPosition(position);
-                // If user change the default selection
-                // First item is disable and it is used for hint
-                type="";
-                if(position==0){
-//                     Notify the selected item text
-                }
-                else
-                    type=selectedItemText;
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() < 1) {
+                    coursecodein.setError("Course code cannot be empty");
+                }
+
+                if (s.length() > 0) {
+                    coursecodein.setErrorEnabled(false);
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
 
             }
         });
+
+
 
 
         findpdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(getContext(),
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        == PackageManager.PERMISSION_DENIED) {
-                    if(!shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        Toast.makeText(getContext(), "Please select Allow for app to work", Toast.LENGTH_SHORT).show();
-                        ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-//                        return;
-                    }
-                    else {
-                        Toast.makeText(getContext(), "Please select Permissions and turn on Storage for app to work", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.parse("package:" + getActivity().getPackageName()));
-                        startActivity(intent);
-//                        return;
-                    }
+
+                if(!auth.getCurrentUser().isEmailVerified())
+                {
+                    Toast.makeText(getContext(), "Please Verify Your Email", Toast.LENGTH_LONG).show();
+                    return;
                 }
-                else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(getContext(),
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-//                    return;
-                }
+
+
+
                 code = inputcode.getText().toString().replaceAll("\\s","").toUpperCase();
-                Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
                 year = inputyear.getText().toString();
-                Toast.makeText(getContext(), year, Toast.LENGTH_SHORT).show();
-                DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("uploads").child(code).child(year).child(type); //Path in database where to check
-                testRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            filename = dataSnapshot.child("FileID").getValue().toString();
-//                            Toast.makeText(getContext(), filename, Toast.LENGTH_SHORT).show();
-                            getfile();
+                datalist = new ArrayList<HashMap<String, String> >();
+                if(code.equals("")) {
+                    coursecodein.setError("Course code cannot be empty");
+                    Toast.makeText(getContext(), "Please enter all required information", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(), "Course code cannot be empty", Toast.LENGTH_SHORT).show();
+                }
+                else if(year.equals("") && !type.equals("")) {
+                    findpdf.startAnimation();
+                    final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads"); //Path in database where to check
+                    Query query = testRef.orderByChild("Course_Type").equalTo(code+"_"+type);
+                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                // dataSnapshot is the "issue" node with all children with id 0
+//                                Toast.makeText(getContext(),"Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
+                                paperdetails.clear();
+                                for (DataSnapshot issue : dataSnapshot.getChildren()) {
+                                    // do something with the individual "issues"
+                                    Log.e("check",issue.getKey().toString());
+
+                                    String cc = issue.child("CourseCode").getValue().toString();
+                                    String un = issue.child("Username").getValue().toString();
+                                    String ue = issue.child("User_Email").getValue().toString();
+                                    String ye = issue.child("Year").getValue().toString();
+                                    String ty = issue.child("Type").getValue().toString();
+                                    String fn = issue.child("FileName").getValue().toString().substring(0,20);
+                                    String pr = issue.child("Prof").getValue().toString();
+                                    Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
+
+
+                                    String key=issue.getKey().toString();
+                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key));
+
+
+                                }
+                                openList();
+                                findpdf.revertAnimation();
+
+                            }
+                            else
+                            {
+                                findpdf.revertAnimation();
+                                Toast.makeText(getContext(),"No paper found", Toast.LENGTH_LONG).show();
+                            }
                         }
-                        else{                                                                                       //If username not in database
-                            Log.e("Fail", "File Retrieval");
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
                         }
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        // Database should do nothing on Cancelling the query
-                    }
-                });
+                    });
+
+                }
+                else if(!year.equals("") && type.equals("")) {
+                    findpdf.startAnimation();
+                    final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads"); //Path in database where to check
+                    Query query = testRef.orderByChild("Course_Year").equalTo(code+"_"+year);
+                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                // dataSnapshot is the "issue" node with all children with id 0
+//                                Toast.makeText(getContext(),"Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
+                                for (DataSnapshot issue : dataSnapshot.getChildren()) {
+                                    // do something with the individual "issues"
+                                    Log.e("check",issue.getKey().toString());
+
+                                    String cc = issue.child("CourseCode").getValue().toString();
+                                    String un = issue.child("Username").getValue().toString();
+                                    String ye = issue.child("Year").getValue().toString();
+                                    String ty = issue.child("Type").getValue().toString();
+                                    String fn = issue.child("FileName").getValue().toString().substring(0,20);
+                                    String pr = issue.child("Prof").getValue().toString();
+                                    Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
+                                    String ue = issue.child("User_Email").getValue().toString();
+
+
+                                    String key=issue.getKey().toString();
+                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key));
+
+
+                                }
+                                openList();
+
+                            }
+                            else
+                            {
+                                findpdf.revertAnimation();
+                                Toast.makeText(getContext(),"No paper found", Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                }
+                else if(!year.equals("") && !type.equals("")) {
+                    findpdf.startAnimation();
+                    final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads"); //Path in database where to check
+                    Query query = testRef.orderByChild("Course_Year_Type").equalTo(code+"_"+year+"_"+type);
+                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                // dataSnapshot is the "issue" node with all children with id 0
+//                                Toast.makeText(getContext(),"Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
+                                for (DataSnapshot issue : dataSnapshot.getChildren()) {
+                                    // do something with the individual "issues"
+                                    Log.e("check",issue.getKey().toString());
+
+                                    String cc = issue.child("CourseCode").getValue().toString();
+
+                                    String un = issue.child("Username").getValue().toString();
+                                    String ye = issue.child("Year").getValue().toString();
+                                    String ty = issue.child("Type").getValue().toString();
+                                    String fn = issue.child("FileName").getValue().toString().substring(0,20);
+                                    String pr = issue.child("Prof").getValue().toString();
+                                    String ue = issue.child("User_Email").getValue().toString();
+
+                                    Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
+
+                                    String key=issue.getKey().toString();
+                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key));
+
+
+                                }
+                                openList();
+
+                            }
+                            else
+                            {
+                                findpdf.revertAnimation();
+                                Toast.makeText(getContext(),"No paper found", Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+                }
+                else {
+                    findpdf.startAnimation();
+                    final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads"); //Path in database where to check
+                    Query query = testRef.orderByChild("CourseCode").equalTo(code);
+                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                // dataSnapshot is the "issue" node with all children with id 0
+//                                Toast.makeText(getContext(),"Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
+                                for (DataSnapshot issue : dataSnapshot.getChildren()) {
+                                    // do something with the individual "issues"
+                                    Log.e("check",issue.getKey().toString());
+
+                                    String cc = issue.child("CourseCode").getValue().toString();
+
+                                    String un = issue.child("Username").getValue().toString();
+                                    String ye = issue.child("Year").getValue().toString();
+                                    String ty = issue.child("Type").getValue().toString();
+                                    String fn = issue.child("FileName").getValue().toString().substring(0,20);
+                                    String pr = issue.child("Prof").getValue().toString();
+                                    Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
+                                    String ue = issue.child("User_Email").getValue().toString();
+
+
+                                    String key=issue.getKey().toString();
+                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key));
+
+
+                                }
+                                openList();
+
+                            }
+                            else
+                            {
+                                findpdf.revertAnimation();
+                                Toast.makeText(getContext(),"No paper found", Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+                }
+
             }
         });
+
+        btntype.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Choose Paper Type");
+
+                // add a list
+                final String[] branches = {"Quiz 1", "Midsem", "Quiz 2", "Endsem" , "Other"};
+                builder.setItems(branches, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        btntype.setText(branches[which]);
+                        type = (String) btntype.getText();
+                    }
+                });
+
+                // create and show the alert dialog
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+
+
+    }
+
+    public void openList(){
+        android.support.v4.app.Fragment newFragment = new ListFragment();
+        newFragment.setEnterTransition(new Slide(Gravity.RIGHT));
+        newFragment.setExitTransition(new Slide(Gravity.LEFT));
+        android.support.v4.app.FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack
+
+        transaction.replace(R.id.frame_container, newFragment);
+        transaction.addToBackStack(null);
+
+        // Commit the transaction
+        transaction.commit();
 
     }
 
     public void getfile() {
-        StorageReference filepath = mStorageReference.child("uploads/").child(filename);
+        StorageReference filepath = mStorageReference.child("Uploads/").child(filename);
         filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
            @Override
            public void onSuccess(Uri uri) {
@@ -323,6 +523,7 @@ public class FindFragment extends Fragment {
 //                    + " must implement OnFragmentInteractionListener");
 //        }
 //    }
+
 
     @Override
     public void onDetach() {
