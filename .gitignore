@@ -3,12 +3,13 @@
 *.ap_
 /*/build/
 
+#IntelliJ files
+/.idea
+
 #OSX and Android Studio files
 *.iml
 .gradle
 /local.properties
-/.idea/workspace.xml
-/.idea/libraries
 .DS_Store
 /build
 /captures
