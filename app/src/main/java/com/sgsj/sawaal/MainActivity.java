@@ -20,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -152,6 +154,63 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 OAuthProvider.Builder provider = OAuthProvider.newBuilder("microsoft.com");
+//                provider.addCustomParameter("login_hint", "user@iitg.ac.in");
+                provider.addCustomParameter("tenant", "850aa78d-94e1-4bc6-9cf3-8c11b530701c");
+                Task<AuthResult> pendingResultTask = auth.getPendingAuthResult();
+                if (pendingResultTask != null) {
+                    // There's something already here! Finish the sign-in for your user.
+                    pendingResultTask
+                            .addOnSuccessListener(
+                                    new OnSuccessListener<AuthResult>() {
+                                        @Override
+                                        public void onSuccess(AuthResult authResult) {
+                                            // User is signed in.
+                                            // IdP data available in
+                                            Log.i("User Profile 1", authResult.getAdditionalUserInfo().getProfile().toString());
+                                            // The OAuth access token can also be retrieved:
+                                            // authResult.getCredential().getAccessToken().
+                                            // The OAuth ID token can also be retrieved:
+                                            // authResult.getCredential().getIdToken().
+                                        }
+                                    })
+                            .addOnFailureListener(
+                                    new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            // Handle failure.
+                                        }
+                                    });
+                } else {
+                    auth
+                            .startActivityForSignInWithProvider(/* activity= */ MainActivity.this, provider.build())
+                            .addOnSuccessListener(
+                                    new OnSuccessListener<AuthResult>() {
+                                        @Override
+                                        public void onSuccess(AuthResult authResult) {
+                                            // User is signed in.
+                                            // IdP data available in
+                                            Log.i("User Profile 2", authResult.getAdditionalUserInfo().getProfile().toString());
+                                            // authResult.getAdditionalUserInfo().getProfile().
+                                            // The OAuth access token can also be retrieved:
+                                            // authResult.getCredential().getAccessToken().
+                                            // The OAuth ID token can also be retrieved:
+                                            // authResult.getCredential().getIdToken().
+                                        }
+                                    })
+                            .addOnFailureListener(
+                                    new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            // Handle failure.
+                                            Log.i("User Profile", e.toString());
+
+                                        }
+                                    });
+
+                }
+
+
+
 
             }
         });
