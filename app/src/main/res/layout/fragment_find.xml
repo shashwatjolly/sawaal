@@ -53,34 +53,34 @@
             <!--</android.support.design.widget.TextInputLayout>-->
 
             <!-- Info Label -->
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/coursecodein"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginTop="8dp"
                 >
-                <android.support.design.widget.TextInputEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/findcourse"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Course Code (Eg: CS222)"
                     android:inputType="text" />
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginTop="8dp"
                 >
-                <android.support.design.widget.TextInputEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/findyear"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Year of Examination (Eg: 2015)"
                     android:inputType="number" />
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!--<EditText-->
             <!--android:id="@+id/regcollege"-->
