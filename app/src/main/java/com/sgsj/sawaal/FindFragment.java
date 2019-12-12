@@ -1,32 +1,17 @@
 package com.sgsj.sawaal;
 
-import android.*;
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
-import android.app.FragmentTransaction;
-import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.Settings;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.Slide;
@@ -38,14 +23,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -59,15 +39,11 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import androidx.fragment.app.FragmentTransaction;
 import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
 
 
@@ -476,10 +452,10 @@ public class FindFragment extends Fragment {
     }
 
     public void openList(){
-        android.support.v4.app.Fragment newFragment = new ListFragment();
+        Fragment newFragment = new ListFragment();
         newFragment.setEnterTransition(new Slide(Gravity.RIGHT));
         newFragment.setExitTransition(new Slide(Gravity.LEFT));
-        android.support.v4.app.FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
 
         // Replace whatever is in the fragment_container view with this fragment,
         // and add the transaction to the back stack
