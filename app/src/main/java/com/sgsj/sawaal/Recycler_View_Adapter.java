@@ -70,6 +70,7 @@ import static android.content.Context.DOWNLOAD_SERVICE;
 
 import static  com.sgsj.sawaal.HomeActivity.newpdfname;
 import static  com.sgsj.sawaal.HomeActivity.newpdfuri;
+import static com.sgsj.sawaal.Recycler_View_Adapter1.v;
 
 
 public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
@@ -81,6 +82,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
     final HashMap<String,String> mapper = new HashMap<>();
     final DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("Hacks");
     StorageReference mStorageReference = FirebaseStorage.getInstance().getReference();
+
 
     private FirebaseAuth auth = FirebaseAuth.getInstance();;
     Resources resources;
@@ -114,39 +116,30 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
     }
 
     @Override
-    public void onBindViewHolder(View_Holder holder, final int position) {
+    public void onBindViewHolder(final View_Holder holder, final int position) {
 
-        //Use the provided View Holder on the onCreateViewHolder method to populate the current row on the RecyclerView
-//        holder.papername.setText(list.get(position).filename);
-        holder.paperuploadedby.setText("Uploaded by: " + list.get(position).username);
+        holder.papervotes.setText("Total Votes: " + list.get(position).votes);
         holder.paperkaprof.setText("Prof: " + list.get(position).prof);
         holder.papertype.setText(list.get(position).typeofpaper);
         holder.paperkayear.setText(list.get(position).year);
         holder.papercoursecode.setText(list.get(position).course_code);
         origpdf=list.get(position).fileurl;
-
         recycler = this;
 
         faulter=list.get(position).usermail;
 
-//        final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users"); //Path in database where to check
-//        Query query = testRef.orderByChild("Username").equalTo(list.get(position).username);
-//        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        String currentUser = auth.getCurrentUser().getEmail();
+        String toRef = "Uploads/"+list.get(position).key;
+        DatabaseReference uploads = FirebaseDatabase.getInstance().getReference(toRef);
+
+//        final boolean hasUpvoted=true,hasDownvoted=true;
+//
+//        uploads.addListenerForSingleValueEvent(new ValueEventListener() {
 //            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists()) {
-//                    // dataSnapshot is the "issue" node with all children with id 0
-////                                Toast.makeText(getContext(),"Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
-//                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
-//                        // do something with the individual "issues"
-//                        faulter = issue.child("Email").getValue().toString();
-//                        Log.e("check",faulter);
-//
-//                    }
-//                }
-//                else
-//                {
-//
+//            public void onDataChange(DataSnapshot snapshot) {
+//                if (!snapshot.child("upvoters").exists()) {
+//                    // run some code
+//                    hasUpvoted=false;
 //                }
 //            }
 //
@@ -156,6 +149,24 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 //            }
 //        });
 
+
+        holder.upvotebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isOn = holder.upvotebtn.isChecked();
+
+                if(isOn){
+                    Log.e("jmd1","g2");
+                    holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
+                }
+                else{
+                    Log.e("jmd1","g1");
+                    holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                }
+            }
+
+        });
+
         holder.downloadbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -163,150 +174,8 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
             }
 
         });
-
-        holder.hackbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String umail = list.get(position).usermail;
-                Log.e("TAG", "onClick: "+umail);
-                Log.e("TAG", "onClick1: "+auth.getCurrentUser().getEmail());
-                if(auth.getCurrentUser().getEmail().equals(umail)) {
-                    Toast.makeText(v.getContext(), "Hacking your own paper is not allowed", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                dismissed=false;
-                doneupload=false;
-                storer="Not Uploaded";
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setTitle("Hack this Paper");
-// I'm using fragment here so I'm using getView() to provide ViewGroup
-// but you can provide here any other instance of ViewGroup from your Fragment / Activity
-                final View viewInflated = LayoutInflater.from(v.getContext()).inflate(R.layout.hackdialog, (ViewGroup) v.findViewById(android.R.id.content), false);
-// Set up the input
-                final EditText input = (EditText) viewInflated.findViewById(R.id.input);
-                displaytextbrowser = viewInflated.findViewById(R.id.displaytextbrowser);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-
-                RadioGroup rg = (RadioGroup) viewInflated.findViewById(R.id.radioGroup1);
-                final String type = ((RadioButton)viewInflated.findViewById(rg.getCheckedRadioButtonId())).getText().toString();
-
-                browse = viewInflated.findViewById(R.id.browser);
-                browse.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(viewInflated.getContext(),
-                                Manifest.permission.READ_EXTERNAL_STORAGE)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions((Activity)v.getContext(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                            return;
-                        }
-
-                        //creating an intent for file chooser
-                        Intent intent = new Intent();
-                        intent.setType("application/pdf");
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
-                        ((HomeActivity)(v.getContext())).startActivityForResult(Intent.createChooser(intent, "Select File"), PICK_PDF_CODE);
-                        resources = ((HomeActivity)(v.getContext())).getResources();
-                    }
-
-                });
-
-                builder.setView(viewInflated);
-
-// Set up the buttons
-                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        String store = input.getText().toString();
-                        Log.e("TAG", "onClick: "+store);
-                        final String uniqueId = mDatabaseReference.push().getKey();
-                        final DatabaseReference dref1 = mDatabaseReference.child(uniqueId);
-
-// Put data in the JSON object
-                        try {
-                            mapper.put("alert",store);
-                            mapper.put("title", "Kaam badh gaya bc!");
-                            mapper.put("OrigPdf",origpdf.toString());
-
-                            mapper.put("Hacker",auth.getCurrentUser().getEmail());
-                            mapper.put("Faulter",faulter);
-                            mapper.put("newpdfurl",storer);
-                            mapper.put("type",type);
-
-                            mapper.put("PaperKey",list.get(position).key);
-
-
-
-                            data.put("alert",store);
-                            data.put("title", "Kaam badh gaya bc!");
-                            data.put("OrigPdf",origpdf);
-                            data.put("Hacker",auth.getCurrentUser().getEmail());
-                            data.put("Faulter",faulter);
-                            data.put("newpdfurl",storer);
-                            data.put("type",type);
-                            data.put("UniqueId",uniqueId);
-                            data.put("PaperKey",list.get(position).key);
-
-                        } catch ( JSONException e) {
-                            // should not happen
-                            throw new IllegalArgumentException("unexpected parsing error", e);
-                        }
-// Configure the push
-
-
-
-                        ParsePush push = new ParsePush();
-//                        push.setChannel("News");
-                        push.setData(data);
-                        push.setChannel("Hackers");
-                        push.sendInBackground();
-
-
-                        dref1.setValue(mapper);
-                    }
-                });
-                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                hackerdialog = builder.create();
-                hackerdialog.show();
-
-                hackerdialog.setOnCancelListener(new DialogInterface.OnCancelListener()
-                {
-                    @Override
-                    public void onCancel(DialogInterface dialog)
-                    {
-                        Log.d("TAG", "Cancelled!!!!!!!!!!!!");
-                        dismissed=true;
-                        if(doneupload) {
-                            StorageReference newpdfref = FirebaseStorage.getInstance().getReferenceFromUrl(newpdfurl);
-                            newpdfref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    // File deleted successfully
-                                    Log.d("TAG", "onSuccess: deleted file2");
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception exception) {
-                                    // Uh-oh, an error occurred!
-                                    Log.d("TAG", "onFailure: did not delete file");
-                                }
-                            });
-                        }
-                    }
-                });
-
-            }
-
-        });
-        //animate(holder);
     }
+
 
     public void uploadFile(final Uri filePath, String newpdfname) {
         //checking if file is available
@@ -386,7 +255,6 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 
 
     }
-
 
     public void downloadFile(Uri u, String filename, final View v) {
         DownloadManager.Request request = new DownloadManager.Request(u);

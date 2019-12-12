@@ -78,7 +78,7 @@
             android:padding="4dp">
 
             <TextView
-                android:id="@+id/paperuploadedby"
+                android:id="@+id/papervotes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Uploaded By: Chandan Karfa"
@@ -94,18 +94,32 @@
             android:gravity="end"
             android:padding="8dp"
             >
-
-            <Button
-                android:id="@+id/paperhackbtn"
-                android:foreground="?attr/selectableItemBackground"
+            <ToggleButton
+                android:id="@+id/upvote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minHeight="30dp"
                 android:layout_gravity="center_vertical"
-                android:layout_marginRight="12dp"
                 android:layout_weight="1"
-                android:text="Hack"
-                android:background="@drawable/roundedbtnbg"
+                android:layout_marginRight="12dp"
+                android:textOn="Upvote"
+                android:textOff="Upvote"
+                android:drawableLeft="@drawable/ic_upvote"
+                android:paddingRight="5dp"
+                />
+
+            <ToggleButton
+                android:id="@+id/downvote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:textOn="Downvote"
+                android:textOff="Downvote"
+                android:drawableLeft="@drawable/ic_downvote"
+                android:layout_marginRight="12dp"
+                android:paddingRight="5dp"
                 />
 
             <Button
@@ -124,70 +138,5 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <!--<GridLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:columnCount="4"-->
-        <!--android:rowCount="4"-->
-        <!--android:padding="5dp">-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/papername"-->
-            <!--android:layout_columnSpan="3"-->
-            <!--android:layout_columnWeight="1"-->
-            <!--android:text="Temp"-->
-            <!--android:layout_rowWeight="1"/>-->
-
-        <!--<Button-->
-            <!--android:id="@+id/paperdownloadbtn"-->
-            <!--android:layout_height="10dp"-->
-            <!--android:layout_width="10dp"-->
-            <!--android:layout_columnSpan="1"-->
-            <!--android:layout_columnWeight="1"-->
-            <!--android:layout_rowSpan="2"-->
-            <!--android:layout_rowWeight="1"/>-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/papercoursecode"-->
-            <!--android:layout_columnSpan="1"-->
-            <!--android:text="Temp"-->
-            <!--android:layout_columnWeight="1"/>-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/paperyear"-->
-            <!--android:layout_columnSpan="1"-->
-            <!--android:text="Temp"-->
-            <!--android:layout_columnWeight="1"/>-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/papertype"-->
-            <!--android:layout_columnSpan="1"-->
-            <!--android:text="Temp"-->
-            <!--android:layout_columnWeight="1"/>-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/paperprof"-->
-            <!--android:layout_columnSpan="3"-->
-            <!--android:layout_columnWeight="1"-->
-            <!--android:text="Temp"-->
-            <!--android:layout_rowWeight="1"/>-->
-
-        <!--<Button-->
-            <!--android:id="@+id/paperhackbtn"-->
-            <!--android:layout_height="10dp"-->
-            <!--android:layout_width="10dp"-->
-            <!--android:layout_columnSpan="1"-->
-            <!--android:layout_columnWeight="1"-->
-            <!--android:layout_rowWeight="1"-->
-            <!--android:layout_rowSpan="2"/>-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/paperuploadedby"-->
-            <!--android:layout_columnSpan="3"-->
-            <!--android:text="Temp"-->
-            <!--android:layout_columnWeight="1"/>-->
-
-    <!--</GridLayout>-->
 
 </android.support.v7.widget.CardView>

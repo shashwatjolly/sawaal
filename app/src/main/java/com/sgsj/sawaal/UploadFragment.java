@@ -435,6 +435,11 @@ public class UploadFragment extends Fragment {
             mapper.put("Course_Type",code+"_"+type);
             mapper.put("Course_Year_Type",code+"_"+year+"_"+type);
 
+            //Upvotes and Downvotes
+            mapper.put("upvoteCount","0");
+            mapper.put("downvoteCount","0");
+
+
             //getting the storage reference
             StorageReference sRef = mStorageReference.child("Uploads/" + file_name);
 

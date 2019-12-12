@@ -11,9 +11,10 @@ public class Data {
         public String filename;
         public String prof;
         public String key;
+        public Integer votes;
         public Uri fileurl;
 
-        Data(String course_code, String username,String usermail, String year, String typeofpaper , String filename , String prof, Uri fileurl,String key) {
+        Data(String course_code, String username,String usermail, String year, String typeofpaper , String filename , String prof, Uri fileurl,String key, Integer votes) {
             this.course_code = course_code;
             this.username = username;
             this.year = year;
@@ -23,5 +24,6 @@ public class Data {
             this.prof=prof;
             this.fileurl=fileurl;
             this.key=key;
+            this.votes = votes;
         }
 }
