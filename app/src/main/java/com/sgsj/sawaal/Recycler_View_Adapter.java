@@ -120,22 +120,28 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
         String toRef = "Uploads/"+list.get(position).key;
         DatabaseReference uploads = FirebaseDatabase.getInstance().getReference(toRef);
 
-//        final boolean hasUpvoted=true,hasDownvoted=true;
-//
-//        uploads.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot snapshot) {
-//                if (!snapshot.child("upvoters").exists()) {
-//                    // run some code
-//                    hasUpvoted=false;
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
+        final boolean hasUpvoted=true,hasDownvoted=false;
+
+
+        if(hasUpvoted){
+            holder.upvotebtn.setChecked(true);
+            holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
+        }
+        else{
+            holder.upvotebtn.setChecked(false);
+            holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+        }
+
+        if(hasDownvoted){
+            holder.downvotebtn.setChecked(true);
+            holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
+        }
+        else{
+            holder.downvotebtn.setChecked(false);
+            holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+        }
+
+
 
 
         holder.upvotebtn.setOnClickListener(new View.OnClickListener() {
@@ -144,16 +150,30 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
                 boolean isOn = holder.upvotebtn.isChecked();
 
                 if(isOn){
-                    Log.e("jmd1","g2");
                     holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
                 }
                 else{
-                    Log.e("jmd1","g1");
                     holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
                 }
             }
 
         });
+
+        holder.downvotebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isOn = holder.downvotebtn.isChecked();
+
+                if(isOn){
+                    holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
+                }
+                else{
+                    holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                }
+            }
+
+        });
+
 
         holder.downloadbtn.setOnClickListener(new View.OnClickListener() {
             @Override
