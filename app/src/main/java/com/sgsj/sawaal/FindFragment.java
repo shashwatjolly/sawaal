@@ -247,8 +247,35 @@ public class FindFragment extends Fragment {
                                     Integer downvotes = Integer.parseInt(issue.child("downvoteCount").getValue().toString());
                                     Integer totalvotes = upvotes-downvotes;
 
+                                    boolean up,down;
+                                    String currentUser = auth.getCurrentUser().getEmail();
+                                    if(!issue.child("upvoters").exists()){
+                                        up=false;
+                                    }
+                                    else{
+                                        List<String> upvoters = (List<String>)issue.child("upvoters").getValue();
+                                        if(upvoters.contains(currentUser)){
+                                            up = true;
+                                        }
+                                        else{
+                                            up = false;
+                                        }
+                                    }
+
+                                    if(!issue.child("downvoters").exists()){
+                                        down=false;
+                                    }
+                                    else{
+                                        List<String> downvoters = (List<String>)issue.child("downvoters").getValue();
+                                        if(downvoters.contains(currentUser)){
+                                            down = true;
+                                        }
+                                        else{
+                                            down = false;
+                                        }
+                                    }
                                     String key=issue.getKey().toString();
-                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes));
+                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
 
 
                                 }
@@ -298,7 +325,35 @@ public class FindFragment extends Fragment {
                                     Integer upvotes = Integer.parseInt(issue.child("upvoteCount").getValue().toString());
                                     Integer downvotes = Integer.parseInt(issue.child("downvoteCount").getValue().toString());
                                     Integer totalvotes = upvotes-downvotes;
-                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes));
+
+                                    boolean up,down;
+                                    String currentUser = auth.getCurrentUser().getEmail();
+                                    if(!issue.child("upvoters").exists()){
+                                        up=false;
+                                    }
+                                    else{
+                                        List<String> upvoters = (List<String>)issue.child("upvoters").getValue();
+                                        if(upvoters.contains(currentUser)){
+                                            up = true;
+                                        }
+                                        else{
+                                            up = false;
+                                        }
+                                    }
+
+                                    if(!issue.child("downvoters").exists()){
+                                        down=false;
+                                    }
+                                    else{
+                                        List<String> downvoters = (List<String>)issue.child("downvoters").getValue();
+                                        if(downvoters.contains(currentUser)){
+                                            down = true;
+                                        }
+                                        else{
+                                            down = false;
+                                        }
+                                    }
+                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
 
 
                                 }
@@ -349,7 +404,35 @@ public class FindFragment extends Fragment {
                                     Integer totalvotes = upvotes-downvotes;
 
                                     String key=issue.getKey().toString();
-                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes));
+
+                                    boolean up,down;
+                                    String currentUser = auth.getCurrentUser().getEmail();
+                                    if(!issue.child("upvoters").exists()){
+                                        up=false;
+                                    }
+                                    else{
+                                        List<String> upvoters = (List<String>)issue.child("upvoters").getValue();
+                                        if(upvoters.contains(currentUser)){
+                                            up = true;
+                                        }
+                                        else{
+                                            up = false;
+                                        }
+                                    }
+
+                                    if(!issue.child("downvoters").exists()){
+                                        down=false;
+                                    }
+                                    else{
+                                        List<String> downvoters = (List<String>)issue.child("downvoters").getValue();
+                                        if(downvoters.contains(currentUser)){
+                                            down = true;
+                                        }
+                                        else{
+                                            down = false;
+                                        }
+                                    }
+                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
 
 
                                 }
@@ -398,9 +481,35 @@ public class FindFragment extends Fragment {
                                     Integer upvotes = Integer.parseInt(issue.child("upvoteCount").getValue().toString());
                                     Integer downvotes = Integer.parseInt(issue.child("downvoteCount").getValue().toString());
                                     Integer totalvotes = upvotes-downvotes;
+                                    boolean up,down;
+                                    String currentUser = auth.getCurrentUser().getEmail();
+                                    if(!issue.child("upvoters").exists()){
+                                        up=false;
+                                    }
+                                    else{
+                                        List<String> upvoters = (List<String>)issue.child("upvoters").getValue();
+                                        if(upvoters.contains(currentUser)){
+                                            up = true;
+                                        }
+                                        else{
+                                            up = false;
+                                        }
+                                    }
 
+                                    if(!issue.child("downvoters").exists()){
+                                        down=false;
+                                    }
+                                    else{
+                                        List<String> downvoters = (List<String>)issue.child("downvoters").getValue();
+                                        if(downvoters.contains(currentUser)){
+                                            down = true;
+                                        }
+                                        else{
+                                            down = false;
+                                        }
+                                    }
                                     String key=issue.getKey().toString();
-                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes));
+                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
 
 
                                 }

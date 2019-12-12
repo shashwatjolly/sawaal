@@ -38,8 +38,13 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -50,6 +55,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -77,6 +83,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
     TextView displaytextbrowser;
     boolean dismissed;
     boolean doneupload;
+    boolean hasUpvoted, hasDownvoted;
     String newpdfurl;
 
     String storer;
@@ -116,12 +123,12 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 
         faulter=list.get(position).usermail;
 
-        String currentUser = auth.getCurrentUser().getEmail();
+        final String currentUser = auth.getCurrentUser().getEmail();
         String toRef = "Uploads/"+list.get(position).key;
-        DatabaseReference uploads = FirebaseDatabase.getInstance().getReference(toRef);
+        final DatabaseReference uploads = FirebaseDatabase.getInstance().getReference(toRef);
 
-        final boolean hasUpvoted=true,hasDownvoted=false;
-
+        hasUpvoted = list.get(position).upvoted;
+        hasDownvoted = list.get(position).downvoted;
 
         if(hasUpvoted){
             holder.upvotebtn.setChecked(true);
@@ -141,18 +148,33 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
             holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
         }
 
-
-
-
         holder.upvotebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 boolean isOn = holder.upvotebtn.isChecked();
 
                 if(isOn){
+
+                    if(!holder.downvotebtn.isChecked()) {
+                        performTransaction(uploads, currentUser, 1, 0, 1, 0, 0, 0);
+                        list.get(position).votes++;
+                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                    }
+                    else{
+                        performTransaction(uploads, currentUser, 1, -1, 1, 0, 0, 1);
+                        list.get(position).votes+=2;
+                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                        holder.downvotebtn.setChecked(false);
+                        holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                    }
+
                     holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
                 }
                 else{
+                    performTransaction(uploads,currentUser,-1,0,0,1,0,0);
+                    list.get(position).votes--;
+                    holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+
                     holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
                 }
             }
@@ -165,9 +187,26 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
                 boolean isOn = holder.downvotebtn.isChecked();
 
                 if(isOn){
+
+                    if(!holder.upvotebtn.isChecked()){
+                        performTransaction(uploads, currentUser, 0, 1, 0, 0, 1, 0);
+                        list.get(position).votes--;
+                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                    }
+                    else{
+                        performTransaction(uploads, currentUser, -1, 1, 0, 1, 1, 0);
+                        list.get(position).votes-=2;
+                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                        holder.upvotebtn.setChecked(false);
+                        holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                    }
+
                     holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
                 }
                 else{
+                    performTransaction(uploads,currentUser,0,-1,0,0,0,1);
+                    list.get(position).votes++;
+                    holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
                     holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
                 }
             }
@@ -184,6 +223,104 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
         });
     }
 
+    public void performTransaction(DatabaseReference ref, final String mail, final Integer upvupd, final Integer downvupd,
+                                   final Integer addupv, final Integer delupv, final Integer addown, final Integer deldown) {
+        final DatabaseReference ref1 = ref.child("upvoteCount");
+        final DatabaseReference ref2 = ref.child("downvoteCount");
+
+        final DatabaseReference ref3 = ref.child("upvoters");
+        final DatabaseReference ref4 = ref.child("downvoters");
+
+        ref1.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                String votes = mutableData.getValue().toString();
+                Integer vot = Integer.parseInt(votes);
+
+                vot = vot + upvupd;
+                mutableData.setValue(vot.toString());
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b,
+                                   DataSnapshot dataSnapshot) {
+                // Transaction completed
+            }
+        });
+
+        ref2.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                String votes = mutableData.getValue().toString();
+                Integer vot = Integer.parseInt(votes);
+
+                vot = vot + downvupd;
+                mutableData.setValue(vot.toString());
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b,
+                                   DataSnapshot dataSnapshot) {
+                // Transaction completed
+            }
+        });
+
+        ref3.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                List<String> upvoters = (List<String>)mutableData.getValue();
+
+                if(upvoters==null){
+                    upvoters=new ArrayList<String>() ;
+                }
+
+                if(addupv==1){
+                    upvoters.add(mail);
+                }
+                else if(delupv==1){
+                    upvoters.remove(mail);
+                }
+
+                mutableData.setValue(upvoters);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b,
+                                   DataSnapshot dataSnapshot) {
+                // Transaction completed
+            }
+        });
+
+        ref4.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                List<String> downvoters = (List<String>)mutableData.getValue();
+
+                if(downvoters==null){
+                    downvoters=new ArrayList<String>() ;
+                }
+
+                if(addown==1){
+                    downvoters.add(mail);
+                }
+                else if(deldown==1){
+                    downvoters.remove(mail);
+                }
+
+                mutableData.setValue(downvoters);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b,
+                                   DataSnapshot dataSnapshot) {
+                // Transaction completed
+            }
+        });
+    }
 
     public void uploadFile(final Uri filePath, String newpdfname) {
         //checking if file is available
