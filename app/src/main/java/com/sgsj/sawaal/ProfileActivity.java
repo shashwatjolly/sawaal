@@ -3,50 +3,38 @@ package com.sgsj.sawaal;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.ColorInt;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.graphics.Palette;
-import android.transition.Fade;
+import androidx.palette.graphics.Palette;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseError;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import javax.xml.datatype.Duration;
 
 import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -93,9 +81,9 @@ public class ProfileActivity extends AppCompatActivity {
         extractmob();
         extractscore();
 
-        newname = findViewById(R.id.profilenameedit);
+//        newname = findViewById(R.id.profilenameedit);
         newphone = findViewById(R.id.profilemobedit);
-        newname.setVisibility(View.GONE);
+//        newname.setVisibility(View.GONE);
         newphone.setVisibility(View.GONE);
         donebtn.setVisibility(View.GONE);
 
@@ -296,11 +284,11 @@ public class ProfileActivity extends AppCompatActivity {
         if(resultCode == 1)
         {
             String newmob = data.getStringExtra("newmob");
-            String newname = data.getStringExtra("newname");
-            name.setText(newname);
+//            String newname = data.getStringExtra("newname");
+//            name.setText(newname);
             phone.setText(newmob);
             Intent returnIntent = new Intent();
-            returnIntent.putExtra("newname", newname);
+//            returnIntent.putExtra("newname", newname);
             setResult(2,returnIntent);
         }
     }

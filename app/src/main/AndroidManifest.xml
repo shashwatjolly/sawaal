@@ -68,13 +68,13 @@
             android:name="com.parse.push.gcm_sender_id"
             android:value="id:1086466113456" />
 
-        <service
-            android:name="com.parse.fcm.ParseFirebaseInstanceIdService"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
+        <!--<service-->
+            <!--android:name="com.parse.fcm.ParseFirebaseInstanceIdService"-->
+            <!--android:exported="true">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.firebase.INSTANCE_ID_EVENT" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
         <service android:name="com.parse.fcm.ParseFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

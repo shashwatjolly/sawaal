@@ -1,22 +1,13 @@
 package com.sgsj.sawaal;
 
 import android.app.Activity;
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Environment;
-import android.os.StrictMode;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,13 +15,11 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 
 import java.util.Collections;
 import java.util.List;
 
-import static android.content.Context.DOWNLOAD_SERVICE;
 import static com.parse.Parse.getApplicationContext;
 
 public class Recycler_View_Adapter1 extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
