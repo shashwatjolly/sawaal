@@ -2,7 +2,9 @@ package com.sgsj.sawaal;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -35,9 +37,15 @@ import com.squareup.picasso.Target;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
 import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static com.sgsj.sawaal.HomeActivity.d;
 
@@ -53,6 +61,9 @@ public class ProfileActivity extends AppCompatActivity {
     private CircleImageView profileimg;
     private boolean complete1, complete2, complete3;
     private LinearLayout ll;
+    public String PREF_ACCESS_TOKEN = "access_token";
+    public  String PREFS_NAME = "MyPrefsFile";
+    SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +91,48 @@ public class ProfileActivity extends AppCompatActivity {
         extractbranch();
         extractmob();
         extractscore();
+
+//        postponeEnterTransition();
+
+
+        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String accessToken = prefs.getString(PREF_ACCESS_TOKEN, "NULL");
+        Log.e("Access token", accessToken);
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://graph.microsoft.com/v1.0/me/photo/$value")
+                .addHeader("Authorization", "Bearer "+accessToken)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                } else {
+//                    Log.e("Type", response.body().getClass());
+                    InputStream i = response.body().byteStream();
+//                    String b = response.body().string();
+//                    BigInteger bigInt = new BigInteger(b, 2);
+//                    byte[] binaryData = bigInt.toByteArray();
+                    final Bitmap image = BitmapFactory.decodeStream(i);
+//                    Drawable image = new BitmapDrawable(getResources(),BitmapFactory.decodeByteArray(binaryData, 0, binaryData.length));
+                    Log.i("Response", response.body().string());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            profileimg.setImageBitmap(image);
+                            startPostponedEnterTransition();
+                        }
+                    });
+//                    profileimg.setImageDrawable(image);
+                }
+            }
+        });
 
 //        newname = findViewById(R.id.profilenameedit);
         newphone = findViewById(R.id.profilemobedit);
