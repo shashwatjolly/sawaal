@@ -60,9 +60,15 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView name, score, email, rollno;
     private CircleImageView profileimg;
     private LinearLayout ll;
+<<<<<<< HEAD
 //    public String PREF_ACCESS_TOKEN = "access_token";
 //    public  String PREFS_NAME = "MyPrefsFile";
 //    SharedPreferences prefs;
+=======
+    public String PREF_ACCESS_TOKEN = "access_token";
+    public  String PREFS_NAME = "MyPrefsFile";
+    SharedPreferences prefs;
+>>>>>>> b1dae0b5c2590b83f671d9e4f4135cc4356d3b6e
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
