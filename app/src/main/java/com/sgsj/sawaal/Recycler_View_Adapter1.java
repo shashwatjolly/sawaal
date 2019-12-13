@@ -47,6 +47,10 @@ public class Recycler_View_Adapter1 extends RecyclerView.Adapter<RecyclerView.Vi
     public Recycler_View_Adapter1(List<Data1> list, Context context) {
         this.list = list;
         emailList = new ArrayList<>(list.size());
+        for(int i=0; i<list.size(); i++) {
+            emailList.add("NULL");
+        }
+
         this.context = context;
     }
 
@@ -107,7 +111,9 @@ public class Recycler_View_Adapter1 extends RecyclerView.Adapter<RecyclerView.Vi
                 }
                 TextDrawable profileimgdrawable = TextDrawable.builder().beginConfig().width(480).height(480).fontSize(160).endConfig().buildRound(initials, color);
                 holder.profileimg.setImageDrawable(profileimgdrawable);
-                emailList.add(position, profileemail);
+                Log.e("pos", Integer.toString(position));
+                Log.e("email at pos", profileemail);
+                emailList.set(position, profileemail);
                 // do your stuff here with value
 
             }
@@ -142,8 +148,10 @@ public class Recycler_View_Adapter1 extends RecyclerView.Adapter<RecyclerView.Vi
                 intent.putExtra("score", holder.profilescore.getText());
                 intent.putExtra("done", holder.profileimg.getTag().toString());
                 intent.putExtra("uid", list.get(position).uid);
-                if(emailList.size()>0) intent.putExtra("email", emailList.get(position));
-                else intent.putExtra("email", "NULL");
+                intent.putExtra("email", emailList.get(position));
+                Log.e("pos neeche", Integer.toString(position));
+                Log.e("email at pos neeche", emailList.get(position));
+                Log.e("emailList", emailList.toString());
                 Log.e("done", holder.profileimg.getTag().toString());
                 view.getContext().startActivity(intent, options.toBundle());
             }
