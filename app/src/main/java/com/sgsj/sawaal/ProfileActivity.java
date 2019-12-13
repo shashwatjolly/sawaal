@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -11,6 +12,7 @@ import android.os.Environment;
 import androidx.annotation.ColorInt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.util.Pair;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +25,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -91,47 +95,59 @@ public class ProfileActivity extends AppCompatActivity {
         extractmob();
         extractscore();
 
-//        postponeEnterTransition();
+        ColorGenerator generator = ColorGenerator.MATERIAL;
+        int color = generator.getColor(auth.getCurrentUser().getEmail());
+        String initials = "";
+        for (String s : auth.getCurrentUser().getDisplayName().split(" ")) {
+            initials+=s.charAt(0);
+        }
+        TextDrawable profileimgdrawable = TextDrawable.builder().beginConfig().width(480).height(480).fontSize(160).endConfig().buildRound(initials, color);
+        profileimg.setImageDrawable(profileimgdrawable);
+        int colorbg = ColorUtils.blendARGB(color, Color.BLACK, 0.4f);
+        ll.setBackgroundColor(colorbg);
+        name.setTextColor(getContrastColor(colorbg));
+        profileimg.setBorderColor(getContrastColor(colorbg));
 
+        // Flow to get profile image from outlook
 
-        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String accessToken = prefs.getString(PREF_ACCESS_TOKEN, "NULL");
-        Log.e("Access token", accessToken);
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url("https://graph.microsoft.com/v1.0/me/photo/$value")
-                .addHeader("Authorization", "Bearer "+accessToken)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    throw new IOException("Unexpected code " + response);
-                } else {
-//                    Log.e("Type", response.body().getClass());
-                    InputStream i = response.body().byteStream();
-//                    String b = response.body().string();
-//                    BigInteger bigInt = new BigInteger(b, 2);
-//                    byte[] binaryData = bigInt.toByteArray();
-                    final Bitmap image = BitmapFactory.decodeStream(i);
-//                    Drawable image = new BitmapDrawable(getResources(),BitmapFactory.decodeByteArray(binaryData, 0, binaryData.length));
-                    Log.i("Response", response.body().string());
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            profileimg.setImageBitmap(image);
-                            startPostponedEnterTransition();
-                        }
-                    });
-//                    profileimg.setImageDrawable(image);
-                }
-            }
-        });
+//        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+//        String accessToken = prefs.getString(PREF_ACCESS_TOKEN, "NULL");
+//        Log.e("Access token", accessToken);
+//        OkHttpClient client = new OkHttpClient();
+//        Request request = new Request.Builder()
+//                .url("https://graph.microsoft.com/v1.0/me/photo/$value")
+//                .addHeader("Authorization", "Bearer "+accessToken)
+//                .build();
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, final Response response) throws IOException {
+//                if (!response.isSuccessful()) {
+//                    throw new IOException("Unexpected code " + response);
+//                } else {
+////                    Log.e("Type", response.body().getClass());
+//                    InputStream i = response.body().byteStream();
+////                    String b = response.body().string();
+////                    BigInteger bigInt = new BigInteger(b, 2);
+////                    byte[] binaryData = bigInt.toByteArray();
+//                    final Bitmap image = BitmapFactory.decodeStream(i);
+////                    Drawable image = new BitmapDrawable(getResources(),BitmapFactory.decodeByteArray(binaryData, 0, binaryData.length));
+//                    Log.i("Response", response.body().string());
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            profileimg.setImageBitmap(image);
+//                            startPostponedEnterTransition();
+//                        }
+//                    });
+////                    profileimg.setImageDrawable(image);
+//                }
+//            }
+//        });
 
 //        newname = findViewById(R.id.profilenameedit);
         newphone = findViewById(R.id.profilemobedit);
@@ -144,60 +160,60 @@ public class ProfileActivity extends AppCompatActivity {
 //        Picasso p = new Picasso.Builder(getApplicationContext())
 //                .memoryCache(new LruCache(24000))
 //                .build();
-        if(d != null)  {
-            profileimg.setImageDrawable(d);
-            Log.e("Using", "Naya wala");
-            Bitmap b = ((BitmapDrawable) profileimg.getDrawable()).getBitmap();
-            Palette.from(b).generate(new Palette.PaletteAsyncListener() {
-                public void onGenerated(Palette p) {
-                    int color = p.getLightVibrantColor(p.getDarkVibrantColor(getResources().getColor(R.color.colorAccent)));
-                    Palette.Swatch psVibrant = p.getVibrantSwatch();
-//                        color = psVibrant.getPopulation();
-                    Palette.Swatch psMuted = p.getMutedSwatch();
-//                        int color = getResources().getColor(R.color.colorPrimary);
-//                        if(psVibrant!=null) {
-//                            color = psVibrant.getRgb();
+//        if(d != null)  {
+//            profileimg.setImageDrawable(d);
+//            Log.e("Using", "Naya wala");
+//            Bitmap b = ((BitmapDrawable) profileimg.getDrawable()).getBitmap();
+//            Palette.from(b).generate(new Palette.PaletteAsyncListener() {
+//                public void onGenerated(Palette p) {
+//                    int color = p.getLightVibrantColor(p.getDarkVibrantColor(getResources().getColor(R.color.colorAccent)));
+//                    Palette.Swatch psVibrant = p.getVibrantSwatch();
+////                        color = psVibrant.getPopulation();
+//                    Palette.Swatch psMuted = p.getMutedSwatch();
+////                        int color = getResources().getColor(R.color.colorPrimary);
+////                        if(psVibrant!=null) {
+////                            color = psVibrant.getRgb();
+////                        }
+////                        else if(psMuted!=null) {
+////                            color = psMuted.getRgb();
+////                        }
+//                    ll.setBackgroundColor(color);
+//                    name.setTextColor(getContrastColor(color));
+//                    profileimg.setBorderColor(getContrastColor(color));
+//                }
+//            });
+//        }
+//        else {
+//            Picasso.with(getApplicationContext()).load(auth.getCurrentUser().getPhotoUrl()).placeholder(R.drawable.ic_launcher_background).into(profileimg, new com.squareup.picasso.Callback() {
+//                @Override
+//                public void onSuccess() {
+//                    Bitmap b = ((BitmapDrawable) profileimg.getDrawable()).getBitmap();
+//                    Palette.from(b).generate(new Palette.PaletteAsyncListener() {
+//                        public void onGenerated(Palette p) {
+//                            int color = p.getLightVibrantColor(p.getDarkVibrantColor(getResources().getColor(R.color.colorAccent)));
+//                            Palette.Swatch psVibrant = p.getVibrantSwatch();
+////                        color = psVibrant.getPopulation();
+//                            Palette.Swatch psMuted = p.getMutedSwatch();
+////                        int color = getResources().getColor(R.color.colorPrimary);
+////                        if(psVibrant!=null) {
+////                            color = psVibrant.getRgb();
+////                        }
+////                        else if(psMuted!=null) {
+////                            color = psMuted.getRgb();
+////                        }
+//                            ll.setBackgroundColor(color);
+//                            name.setTextColor(getContrastColor(color));
+//                            profileimg.setBorderColor(getContrastColor(color));
 //                        }
-//                        else if(psMuted!=null) {
-//                            color = psMuted.getRgb();
-//                        }
-                    ll.setBackgroundColor(color);
-                    name.setTextColor(getContrastColor(color));
-                    profileimg.setBorderColor(getContrastColor(color));
-                }
-            });
-        }
-        else {
-            Picasso.with(getApplicationContext()).load(auth.getCurrentUser().getPhotoUrl()).placeholder(R.drawable.ic_launcher_background).into(profileimg, new com.squareup.picasso.Callback() {
-                @Override
-                public void onSuccess() {
-                    Bitmap b = ((BitmapDrawable) profileimg.getDrawable()).getBitmap();
-                    Palette.from(b).generate(new Palette.PaletteAsyncListener() {
-                        public void onGenerated(Palette p) {
-                            int color = p.getLightVibrantColor(p.getDarkVibrantColor(getResources().getColor(R.color.colorAccent)));
-                            Palette.Swatch psVibrant = p.getVibrantSwatch();
-//                        color = psVibrant.getPopulation();
-                            Palette.Swatch psMuted = p.getMutedSwatch();
-//                        int color = getResources().getColor(R.color.colorPrimary);
-//                        if(psVibrant!=null) {
-//                            color = psVibrant.getRgb();
-//                        }
-//                        else if(psMuted!=null) {
-//                            color = psMuted.getRgb();
-//                        }
-                            ll.setBackgroundColor(color);
-                            name.setTextColor(getContrastColor(color));
-                            profileimg.setBorderColor(getContrastColor(color));
-                        }
-                    });
-                }
-
-                @Override
-                public void onError() {
-
-                }
-            });
-        }
+//                    });
+//                }
+//
+//                @Override
+//                public void onError() {
+//
+//                }
+//            });
+//        }
 //        Dali.create(this).load(R.drawable.ic_launcher_background).blurRadius(12).into(profileimg);
 //        BlurKit.init(this);
 //        BlurKit.getInstance().blur(profileimg, 12);

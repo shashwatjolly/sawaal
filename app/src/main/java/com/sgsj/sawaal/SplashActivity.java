@@ -3,13 +3,22 @@ package com.sgsj.sawaal;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.transition.Transition;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.OAuthCredential;
+import com.google.firebase.auth.OAuthProvider;
 import com.ramotion.paperonboarding.PaperOnboardingFragment;
 import com.ramotion.paperonboarding.PaperOnboardingPage;
 import com.ramotion.paperonboarding.listeners.PaperOnboardingOnChangeListener;
@@ -38,7 +47,7 @@ public class SplashActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
-        if(checkFirstRun()==1) {
+        if(auth.getCurrentUser()==null) {
             getWindow().setStatusBarColor(Color.parseColor("#678FB4"));
             PaperOnboardingPage scr1 = new PaperOnboardingPage("Welcome Maggus",
                     "Sawaal is your one stop destination for all examination papers that you will ever need",
@@ -55,6 +64,9 @@ public class SplashActivity extends AppCompatActivity {
             PaperOnboardingPage scr5 = new PaperOnboardingPage("Let's Get Started!",
                     "Swipe right to begin :)",
                     Color.parseColor("#ffee58"), R.drawable.ic_navigate_next_black_128dp, R.drawable.ic_favorite_border_black_24dp);
+//            PaperOnboardingPage scr6 = new PaperOnboardingPage("Logging you in",
+//                    "Hold on!",
+//                    Color.parseColor("#ffee58"), R.drawable.progressbar, R.layout.progressbar);
 
             ArrayList<PaperOnboardingPage> elements = new ArrayList<>();
             elements.add(scr1);
@@ -62,24 +74,7 @@ public class SplashActivity extends AppCompatActivity {
             elements.add(scr3);
             elements.add(scr4);
             elements.add(scr5);
-//
-//            PaperOnboardingEngine engine = new PaperOnboardingEngine(findViewById(R.id.splashtexttemp), elements, getApplicationContext());
-//
-//            engine.setOnChangeListener(new PaperOnboardingOnChangeListener() {
-//                @Override
-//                public void onPageChanged(int oldElementIndex, int newElementIndex) {
-//                    Toast.makeText(getApplicationContext(), "Swiped from " + oldElementIndex + " to " + newElementIndex, Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//
-//            engine.setOnRightOutListener(new PaperOnboardingOnRightOutListener() {
-//                @Override
-//                public void onRightOut() {
-//                    // Probably here will be your exit action
-//                    Toast.makeText(getApplicationContext(), "Swiped out right", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-
+//            elements.add(scr6);
 
             PaperOnboardingFragment onBoardingFragment = PaperOnboardingFragment.newInstance(elements);
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -88,10 +83,35 @@ public class SplashActivity extends AppCompatActivity {
             onBoardingFragment.setOnRightOutListener(new PaperOnboardingOnRightOutListener() {
                 @Override
                 public void onRightOut() {
+                    setContentView(R.layout.activity_splash);
+                    getWindow().setStatusBarColor(Color.parseColor(getResources().getString(0 + R.color.colorPrimary)));
+                    Toast.makeText(SplashActivity.this, "Login to Outlook", Toast.LENGTH_SHORT);
                     // Update the shared preferences with the current version code
-                    prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
-                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                    finish();
+//                    prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
+                    OAuthProvider.Builder provider = OAuthProvider.newBuilder("microsoft.com");
+                    provider.addCustomParameter("tenant", "850aa78d-94e1-4bc6-9cf3-8c11b530701c");
+                    Task<AuthResult> pendingResultTask = auth.getPendingAuthResult();
+                    auth
+                            .startActivityForSignInWithProvider(/* activity= */ SplashActivity.this, provider.build())
+                            .addOnSuccessListener(
+                                    new OnSuccessListener<AuthResult>() {
+                                        @Override
+                                        public void onSuccess(AuthResult authResult) {
+                                            Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
+                                            startActivity(intent);
+                                            finish();
+
+                                        }
+                                    })
+                            .addOnFailureListener(
+                                    new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            // Handle failure.
+                                            Log.i("User Profile", e.toString());
+
+                                        }
+                                    });
                 }
             });
             onBoardingFragment.setOnChangeListener(new PaperOnboardingOnChangeListener() {
@@ -116,16 +136,56 @@ public class SplashActivity extends AppCompatActivity {
                                     startActivity(new Intent(SplashActivity.this, HomeActivity.class));
                                     finish();
                                 } else {
-                                    Log.e("TAG", "onSuccess: rasta 1");
-                                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                                    finish();
+                                    OAuthProvider.Builder provider = OAuthProvider.newBuilder("microsoft.com");
+                                    provider.addCustomParameter("tenant", "850aa78d-94e1-4bc6-9cf3-8c11b530701c");
+                                    auth
+                                        .startActivityForSignInWithProvider(/* activity= */ SplashActivity.this, provider.build())
+                                        .addOnSuccessListener(
+                                                new OnSuccessListener<AuthResult>() {
+                                                    @Override
+                                                    public void onSuccess(AuthResult authResult) {
+                                                        Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
+                                                        startActivity(intent);
+                                                        finish();
+
+                                                    }
+                                                })
+                                        .addOnFailureListener(
+                                                new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        // Handle failure.
+                                                        Log.i("User Profile", e.toString());
+
+                                                    }
+                                                });
                                 }
                             }
                         });
             } else {
-                Log.e("TAG", "onCreate: rasta 2");
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                finish();
+                OAuthProvider.Builder provider = OAuthProvider.newBuilder("microsoft.com");
+                provider.addCustomParameter("tenant", "850aa78d-94e1-4bc6-9cf3-8c11b530701c");
+                auth
+                    .startActivityForSignInWithProvider(/* activity= */ SplashActivity.this, provider.build())
+                    .addOnSuccessListener(
+                            new OnSuccessListener<AuthResult>() {
+                                @Override
+                                public void onSuccess(AuthResult authResult) {
+                                    Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
+                                    startActivity(intent);
+                                    finish();
+
+                                }
+                            })
+                    .addOnFailureListener(
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    // Handle failure.
+                                    Log.i("User Profile", e.toString());
+
+                                }
+                            });
             }
 
 
@@ -134,39 +194,39 @@ public class SplashActivity extends AppCompatActivity {
 
     }
 
-    private int checkFirstRun() {
-
-        PREFS_NAME = "MyPrefsFile";
-        PREF_VERSION_CODE_KEY = "version_code";
-        DOESNT_EXIST = -1;
-
-        // Get current version code
-        currentVersionCode = BuildConfig.VERSION_CODE;
-
-        // Get saved version code
-        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        savedVersionCode = prefs.getInt(PREF_VERSION_CODE_KEY, DOESNT_EXIST);
-
-        // Check for first run or upgrade
-        if (currentVersionCode == savedVersionCode) {
-
-            // This is just a normal run
-            return 0;
-
-        } else if (savedVersionCode == DOESNT_EXIST) {
-
-            // TODO This is a new install (or the user cleared the shared preferences)
-
-            return 1;
-
-        } else if (currentVersionCode > savedVersionCode) {
-
-            // TODO This is an upgrade
-            return 2;
-        }
-
-
-
-        return -1;
-    }
+//    private int checkFirstRun() {
+//
+//        PREFS_NAME = "MyPrefsFile";
+//        PREF_VERSION_CODE_KEY = "version_code";
+//        DOESNT_EXIST = -1;
+//
+//        // Get current version code
+//        currentVersionCode = BuildConfig.VERSION_CODE;
+//
+//        // Get saved version code
+//        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+//        savedVersionCode = prefs.getInt(PREF_VERSION_CODE_KEY, DOESNT_EXIST);
+//
+//        // Check for first run or upgrade
+//        if (currentVersionCode == savedVersionCode) {
+//
+//            // This is just a normal run
+//            return 0;
+//
+//        } else if (savedVersionCode == DOESNT_EXIST) {
+//
+//            // TODO This is a new install (or the user cleared the shared preferences)
+//
+//            return 1;
+//
+//        } else if (currentVersionCode > savedVersionCode) {
+//
+//            // TODO This is an upgrade
+//            return 2;
+//        }
+//
+//
+//
+//        return -1;
+//    }
 }

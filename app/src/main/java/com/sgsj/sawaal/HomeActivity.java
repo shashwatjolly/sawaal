@@ -14,6 +14,8 @@ import android.os.SystemClock;
 import android.provider.OpenableColumns;
 import androidx.annotation.NonNull;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
@@ -76,7 +78,6 @@ public class HomeActivity extends AppCompatActivity {
     private CircleImageView profileimg;
     private TextView profilename;
     private long lastClickTime = 0;
-    MenuItem resend;
     public static Drawable d = null;
 
 
@@ -102,10 +103,6 @@ public class HomeActivity extends AppCompatActivity {
         dl.addDrawerListener(t);
         t.syncState();
 
-        resend = nv.getMenu().findItem(R.id.resendverification);
-        if(auth.getCurrentUser().isEmailVerified()) {
-                resend.setVisible(false);
-        }
 
         View header = nv.getHeaderView(0);
         profilename = header.findViewById(R.id.profilenamenv);
@@ -113,60 +110,61 @@ public class HomeActivity extends AppCompatActivity {
         profilename.setText(auth.getCurrentUser().getDisplayName().toUpperCase());
         profileemail.setText(auth.getCurrentUser().getEmail());
 
+        // Building profile image from initials
+
         profileimg = header.findViewById(R.id.profile_imagenv);
-        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String accessToken = prefs.getString(PREF_ACCESS_TOKEN, "NULL");
-        Log.e("Access token", accessToken);
-        Log.e("Hmm", auth.getCurrentUser().getIdToken(true).toString());
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url("https://graph.microsoft.com/v1.0/me/photo/$value")
-                .addHeader("Authorization", "Bearer "+accessToken)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
+        ColorGenerator generator = ColorGenerator.MATERIAL;
+        int color = generator.getColor(auth.getCurrentUser().getEmail());
+        String initials = "";
+        for (String s : auth.getCurrentUser().getDisplayName().split(" ")) {
+            initials+=s.charAt(0);
+        }
+        TextDrawable profileimgdrawable = TextDrawable.builder().beginConfig().width(144).height(144).fontSize(48).endConfig().buildRound(initials, color);
+        profileimg.setImageDrawable(profileimgdrawable);
 
-            @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    throw new IOException("Unexpected code " + response);
-                } else {
-//                    Log.e("Type", response.body().getClass());
-                    InputStream i = response.body().byteStream();
-//                    String b = response.body().string();
-//                    BigInteger bigInt = new BigInteger(b, 2);
-//                    byte[] binaryData = bigInt.toByteArray();
-                    final Bitmap image = BitmapFactory.decodeStream(i);
-//                    Drawable image = new BitmapDrawable(getResources(),BitmapFactory.decodeByteArray(binaryData, 0, binaryData.length));
-                    Log.i("Response", response.body().string());
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            profileimg.setImageBitmap(image);
-//                            startPostponedEnterTransition();
-                        }
-                    });
-//                    profileimg.setImageDrawable(image);
-                }
-            }
-        });
-//        Log.e("Hmm", auth.getCurrentUser().getPhotoUrl().toString());
-//        Picasso.with(getApplicationContext()).load(auth.getCurrentUser().getPhotoUrl()).into(profileimg);
+        // Flow to get outlook profile picture
 
-        Picasso.with(getApplicationContext()).load(auth.getCurrentUser().getPhotoUrl()).placeholder(R.drawable.ic_launcher_background).into(profileimg, new com.squareup.picasso.Callback() {
-            @Override
-            public void onSuccess() {
-                d = profileimg.getDrawable();
-            }
+//        profileimg = header.findViewById(R.id.profile_imagenv);
+//        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+//        String accessToken = prefs.getString(PREF_ACCESS_TOKEN, "NULL");
+//        Log.e("Access token", accessToken);
+//        Log.e("Hmm", auth.getCurrentUser().getIdToken(true).toString());
+//        OkHttpClient client = new OkHttpClient();
+//        Request request = new Request.Builder()
+//                .url("https://graph.microsoft.com/v1.0/me/photo/$value")
+//                .addHeader("Authorization", "Bearer "+accessToken)
+//                .build();
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, final Response response) throws IOException {
+//                if (!response.isSuccessful()) {
+//                    throw new IOException("Unexpected code " + response);
+//                } else {
+////                    Log.e("Type", response.body().getClass());
+//                    InputStream i = response.body().byteStream();
+////                    String b = response.body().string();
+////                    BigInteger bigInt = new BigInteger(b, 2);
+////                    byte[] binaryData = bigInt.toByteArray();
+//                    final Bitmap image = BitmapFactory.decodeStream(i);
+////                    Drawable image = new BitmapDrawable(getResources(),BitmapFactory.decodeByteArray(binaryData, 0, binaryData.length));
+//                    Log.i("Response", response.body().string());
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            profileimg.setImageBitmap(image);
+////                            startPostponedEnterTransition();
+//                        }
+//                    });
+////                    profileimg.setImageDrawable(image);
+//                }
+//            }
+//        });
 
-            @Override
-            public void onError() {
-
-            }
-        });
 
         final Activity ac = this;
 
@@ -178,7 +176,7 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 lastClickTime = SystemClock.elapsedRealtime();
                 Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
-                profileimg.getDrawable().toString();
+//                startActivity(intent);
 //                intent.putExtra("profileimage", profileimg.getImageMatrix().toString());
                 Pair<View, String> p1 = Pair.create((View)profileimg, "profileimg");
 //                Pair<View, String> p3 = Pair.create((View)cv, "card");
@@ -250,104 +248,18 @@ public class HomeActivity extends AppCompatActivity {
                         getSupportFragmentManager().beginTransaction().replace(R.id.frame_container, new LeaderFragment()).commit();
                         Toast.makeText(HomeActivity.this, "My Cart",Toast.LENGTH_SHORT).show();
                         return true;
-                    case R.id.resendverification:
-                        auth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Log.i("Success", "Yes");
-                                } else {
-                                    Log.i("Success", "No");
-                                }
-                            }
-                        });
-                        Toast.makeText(HomeActivity.this, "Verification email has been sent to your email. Verification link will expire in 15 minutes and account will be deleted if not verified.", Toast.LENGTH_LONG).show();
+                    case R.id.about:
+                        Intent intent = new Intent(HomeActivity.this, About.class);
+                        startActivity(intent);
                         return true;
-
-                case R.id.about:
-                    Intent intent = new Intent(HomeActivity.this, About.class);
-                    startActivity(intent);
-                    return true;
-                    default:
-                        return true;
-                }
+                        default:
+                            return true;
+                    }
 
             }
         });
 
-
-        //        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-//        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-//        getSupportActionBar().hide();
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        toolbar.setTitle("Find Paper");
-//        setSupportActionBar(toolbar);
-//        getSupportActionBar().setTitle("Find Paper");
-//        loadFragment(new FindFragment());
-        //        mTextMessage = (TextView) findViewById(R.id.message);
-        //        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        //        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
-
-//    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-//            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-//
-//        @Override
-//        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//            Fragment fragment;
-//            Log.e("DEBUG", "4");
-//            switch (item.getItemId()) {
-//                case R.id.navigation_home:
-//                    Log.e("DEBUG", "1");
-//                    fragment = new FindFragment();
-//                    loadFragment(fragment);
-//                    return true;
-//                case R.id.navigation_dashboard:
-//                    Log.e("DEBUG", "2");
-//                    fragment = new UploadFragment();
-//                    loadFragment(fragment);
-//                    return true;
-//                case R.id.navigation_notifications:
-//                    Log.e("DEBUG", "3");
-//                    fragment = new LeaderFragment();
-//                    loadFragment(fragment);
-//                    return true;
-//            }
-//            return false;
-//        }
-//    };
-
-//
-//    private void loadFragment(Fragment fragment) {
-//        // load fragment
-//        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//        transaction.replace(R.id.frame_container, fragment);
-//        transaction.addToBackStack(null);
-//        transaction.commit();
-//    }
-
-//    public void onBackPressed() {
-//        BottomNavigationView mBottomNavigationView = findViewById(R.id.navigation);
-//        if (isathome) {
-////            super.onBackPressed();
-//            finish();
-//
-//        } else {
-//            if (mBottomNavigationView.getSelectedItemId() != R.id.navigation_home)
-//                mBottomNavigationView.setSelectedItemId(R.id.navigation_home);
-//            else {
-//                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-//                    getSupportFragmentManager().popBackStack();
-//                    isathome=true;
-//                    Log.e("TER", "RW");
-//                } else {
-////                    super.onBackPressed();
-//                    finish();
-//                }
-//            }
-//        }
-//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -415,29 +327,6 @@ public class HomeActivity extends AppCompatActivity {
             }else{
                 Toast.makeText(this, "No file chosen", Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (auth.getCurrentUser().isEmailVerified()) {
-            resend.setVisible(false);
-        } else {
-            auth.getCurrentUser().reload()
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            if (auth.getCurrentUser().isEmailVerified()) {
-                                Log.e("MACHAYA", "MACHAYA");
-                                resend.setVisible(false);
-
-                            } else {
-                                Log.e("HAGGA", "HAGGA");
-                            }
-                        }
-                    });
         }
     }
 }
