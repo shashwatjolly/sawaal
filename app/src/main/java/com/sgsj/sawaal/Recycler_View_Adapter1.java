@@ -3,9 +3,11 @@ package com.sgsj.sawaal;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.SystemClock;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
@@ -15,8 +17,19 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
+import com.google.firebase.FirebaseError;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,14 +37,16 @@ import static com.parse.Parse.getApplicationContext;
 
 public class Recycler_View_Adapter1 extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     List<Data1> list = Collections.emptyList();
+    List<String> emailList;
     Context context;
     private String done = "no";
-    public static View_Holder1 v;
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
+    private String profileemail;
 
     public Recycler_View_Adapter1(List<Data1> list, Context context) {
         this.list = list;
+        emailList = new ArrayList<>(list.size());
         this.context = context;
     }
 
@@ -74,18 +89,39 @@ public class Recycler_View_Adapter1 extends RecyclerView.Adapter<RecyclerView.Vi
         holder.profileimg.setTag("no");
         holder.profilename.setText(list.get(position).profilename);
         holder.profilescore.setText(list.get(position).profilescore);
-        Log.e(list.get(position).profileimgurl.toString(), "Hmm");
-        Picasso.with(getApplicationContext()).load(list.get(position).profileimgurl).placeholder(R.drawable.ic_launcher_background).into(holder.profileimg, new com.squareup.picasso.Callback() {
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users").child(list.get(position).uid).child("Email"); //Path in database where to check
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onSuccess() {
-                holder.profileimg.setTag("yes");
-            }
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String value = (String) dataSnapshot.getValue();
+                profileemail = dataSnapshot.getValue().toString();
+                ColorGenerator generator = ColorGenerator.MATERIAL;
+                final int color = generator.getColor(profileemail);
+                String initials = "";
+                for (String s : holder.profilename.getText().toString().split(" ")) {
+                    initials+=s.charAt(0);
+                }
+                TextDrawable profileimgdrawable = TextDrawable.builder().beginConfig().width(480).height(480).fontSize(160).endConfig().buildRound(initials, color);
+                holder.profileimg.setImageDrawable(profileimgdrawable);
+                emailList.add(position, profileemail);
+                // do your stuff here with value
 
-            @Override
-            public void onError() {
+            }
+            public void onCancelled(DatabaseError firebaseError) {
 
             }
         });
+//        Picasso.with(getApplicationContext()).load(list.get(position).profileimgurl).placeholder(R.drawable.ic_launcher_background).into(holder.profileimg, new com.squareup.picasso.Callback() {
+//            @Override
+//            public void onSuccess() {
+//                holder.profileimg.setTag("yes");
+//            }
+//
+//            @Override
+//            public void onError() {
+//
+//            }
+//        });
 
         holder.cv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,16 +131,16 @@ public class Recycler_View_Adapter1 extends RecyclerView.Adapter<RecyclerView.Vi
                     return;
                 }
                 lastClickTime = SystemClock.elapsedRealtime();
-                Toast.makeText(view.getContext(), "clicked on " + position, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(view.getContext(), OtherProfile.class);
                 Pair<View, String> p1 = Pair.create((View) holder.profileimg, "profileimg");
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) view.getContext(), p1);
                 intent.putExtra("name", holder.profilename.getText());
                 intent.putExtra("score", holder.profilescore.getText());
-                intent.putExtra("url", list.get(position).profileimgurl.toString());
                 intent.putExtra("done", holder.profileimg.getTag().toString());
+                intent.putExtra("uid", list.get(position).uid);
+                if(emailList.size()>0) intent.putExtra("email", emailList.get(position));
+                else intent.putExtra("email", "NULL");
                 Log.e("done", holder.profileimg.getTag().toString());
-                v = holder;
                 view.getContext().startActivity(intent, options.toBundle());
             }
         });

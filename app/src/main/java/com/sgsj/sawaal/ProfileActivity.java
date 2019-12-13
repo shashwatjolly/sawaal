@@ -94,7 +94,6 @@ public class ProfileActivity extends AppCompatActivity {
         int colorbg = ColorUtils.blendARGB(color, Color.BLACK, 0.4f);
         ll.setBackgroundColor(colorbg);
         name.setTextColor(getContrastColor(colorbg));
-        profileimg.setBorderColor(getContrastColor(colorbg));
 
         // Flow to get profile image from outlook
 
