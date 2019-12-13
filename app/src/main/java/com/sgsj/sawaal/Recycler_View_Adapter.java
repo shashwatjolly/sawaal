@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -148,29 +149,26 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
             holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
         }
 
-        holder.upvotebtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean isOn = holder.upvotebtn.isChecked();
+        holder.upvotebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
 
-                if(isOn){
-
-                    if(!holder.downvotebtn.isChecked()) {
                         performTransaction(uploads, currentUser, 1, 0, 1, 0, 0, 0);
                         list.get(position).votes++;
-                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
-                    }
-                    else{
-                        performTransaction(uploads, currentUser, 1, -1, 1, 0, 0, 1);
-                        list.get(position).votes+=2;
-                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+
+                        if(holder.downvotebtn.isChecked()){
                         holder.downvotebtn.setChecked(false);
                         holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
-                    }
+                        }
+                        else
+                        {
+                            holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+
+                        }
 
                     holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
-                }
-                else{
+                } else {
+
                     performTransaction(uploads,currentUser,-1,0,0,1,0,0);
                     list.get(position).votes--;
                     holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
@@ -178,39 +176,31 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
                     holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
                 }
             }
-
         });
 
-        holder.downvotebtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean isOn = holder.downvotebtn.isChecked();
-
-                if(isOn){
-
-                    if(!holder.upvotebtn.isChecked()){
+        holder.downvotebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
                         performTransaction(uploads, currentUser, 0, 1, 0, 0, 1, 0);
                         list.get(position).votes--;
-                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
-                    }
-                    else{
-                        performTransaction(uploads, currentUser, -1, 1, 0, 1, 1, 0);
-                        list.get(position).votes-=2;
-                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
-                        holder.upvotebtn.setChecked(false);
-                        holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
-                    }
+
+
+                        if(holder.upvotebtn.isChecked()){
+                            holder.upvotebtn.setChecked(false);
+                            holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                        }
+                        else{
+                            holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                        }
 
                     holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
-                }
-                else{
+                } else {
                     performTransaction(uploads,currentUser,0,-1,0,0,0,1);
                     list.get(position).votes++;
                     holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
                     holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
                 }
             }
-
         });
 
 
@@ -225,101 +215,147 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 
     public void performTransaction(DatabaseReference ref, final String mail, final Integer upvupd, final Integer downvupd,
                                    final Integer addupv, final Integer delupv, final Integer addown, final Integer deldown) {
-        final DatabaseReference ref1 = ref.child("upvoteCount");
-        final DatabaseReference ref2 = ref.child("downvoteCount");
+        final DatabaseReference ref5 = ref;
+        final DatabaseReference ref1 = ref5.child("upvoteCount");
+        final DatabaseReference ref2 = ref5.child("downvoteCount");
+        final DatabaseReference ref3 = ref5.child("upvoters");
+        final DatabaseReference ref4 = ref5.child("downvoters");
 
-        final DatabaseReference ref3 = ref.child("upvoters");
-        final DatabaseReference ref4 = ref.child("downvoters");
-
-        ref1.runTransaction(new Transaction.Handler() {
+        ref1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                String votes = mutableData.getValue().toString();
-                Integer vot = Integer.parseInt(votes);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ref1.runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        if(mutableData.getValue() != null) {
+                            String votes = mutableData.getValue().toString();
+                            Integer vot = Integer.parseInt(votes);
+                            vot = vot + upvupd;
+                            mutableData.setValue(vot.toString());
+                        }
+                        return Transaction.success(mutableData);
 
-                vot = vot + upvupd;
-                mutableData.setValue(vot.toString());
-                return Transaction.success(mutableData);
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b,
+                                           DataSnapshot dataSnapshot) {
+                        // Transaction completed
+                    }
+                });
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    System.out.println("The read failed: " + databaseError.getCode());
+                }
+            });
+
+        ref2.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                ref2.runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        if(mutableData.getValue() != null) {
+                            String votes = mutableData.getValue().toString();
+                            Integer vot = Integer.parseInt(votes);
+                            vot = vot + downvupd;
+                            mutableData.setValue(vot.toString());
+                        }
+                        return Transaction.success(mutableData);
+
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b,
+                                           DataSnapshot dataSnapshot) {
+                        // Transaction completed
+                    }
+                });
             }
 
             @Override
-            public void onComplete(DatabaseError databaseError, boolean b,
-                                   DataSnapshot dataSnapshot) {
-                // Transaction completed
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
             }
         });
 
-        ref2.runTransaction(new Transaction.Handler() {
+        ref3.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                String votes = mutableData.getValue().toString();
-                Integer vot = Integer.parseInt(votes);
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                vot = vot + downvupd;
-                mutableData.setValue(vot.toString());
-                return Transaction.success(mutableData);
+                ref3.runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        if(mutableData.getValue()!=null) {
+                            List<String> upvoters = (List<String>) mutableData.getValue();
+
+                            if (addupv == 1) {
+                                upvoters.add(mail);
+                            } else if (delupv == 1) {
+                                upvoters.remove(mail);
+                            }
+
+                            mutableData.setValue(upvoters);
+                        }
+                        return Transaction.success(mutableData);
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b,
+                                           DataSnapshot dataSnapshot) {
+                        // Transaction completed
+                    }
+                });
+
             }
 
             @Override
-            public void onComplete(DatabaseError databaseError, boolean b,
-                                   DataSnapshot dataSnapshot) {
-                // Transaction completed
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
+        ref4.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                ref4.runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        if(mutableData.getValue()!=null) {
+                            List<String> downvoters = (List<String>) mutableData.getValue();
+                            if (addown == 1) {
+                                downvoters.add(mail);
+                            } else if (deldown == 1) {
+                                downvoters.remove(mail);
+                            }
+                            mutableData.setValue(downvoters);
+                        }
+                        return Transaction.success(mutableData);
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b,
+                                           DataSnapshot dataSnapshot) {
+                        // Transaction completed
+                    }
+                });
+            }
+
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
             }
         });
 
-        ref3.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                List<String> upvoters = (List<String>)mutableData.getValue();
 
-                if(upvoters==null){
-                    upvoters=new ArrayList<String>() ;
-                }
 
-                if(addupv==1){
-                    upvoters.add(mail);
-                }
-                else if(delupv==1){
-                    upvoters.remove(mail);
-                }
 
-                mutableData.setValue(upvoters);
-                return Transaction.success(mutableData);
-            }
 
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean b,
-                                   DataSnapshot dataSnapshot) {
-                // Transaction completed
-            }
-        });
-
-        ref4.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                List<String> downvoters = (List<String>)mutableData.getValue();
-
-                if(downvoters==null){
-                    downvoters=new ArrayList<String>() ;
-                }
-
-                if(addown==1){
-                    downvoters.add(mail);
-                }
-                else if(deldown==1){
-                    downvoters.remove(mail);
-                }
-
-                mutableData.setValue(downvoters);
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean b,
-                                   DataSnapshot dataSnapshot) {
-                // Transaction completed
-            }
-        });
     }
 
     public void uploadFile(final Uri filePath, String newpdfname) {
