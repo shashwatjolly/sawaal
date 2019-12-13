@@ -211,6 +211,22 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
             }
 
         });
+
+            holder.cv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OpenOrigFile(v,list.get(position).fileurl);
+            }
+
+        });
+    }
+
+
+    public void OpenOrigFile(View v,Uri paperURL)
+    {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(paperURL, "application/pdf");
+        v.getContext().startActivity(intent);
     }
 
     public void performTransaction(DatabaseReference ref, final String mail, final Integer upvupd, final Integer downvupd,
@@ -351,9 +367,6 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
                 System.out.println("The read failed: " + databaseError.getCode());
             }
         });
-
-
-
 
 
     }

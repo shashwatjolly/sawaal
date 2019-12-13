@@ -202,15 +202,6 @@ public class FindFragment extends Fragment {
         findpdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(!auth.getCurrentUser().isEmailVerified())
-                {
-                    Toast.makeText(getContext(), "Please Verify Your Email", Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-
-
                 code = inputcode.getText().toString().replaceAll("\\s","").toUpperCase();
                 year = inputyear.getText().toString();
                 datalist = new ArrayList<HashMap<String, String> >();
