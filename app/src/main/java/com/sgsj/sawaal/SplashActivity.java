@@ -19,12 +19,15 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.OAuthCredential;
 import com.google.firebase.auth.OAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.ramotion.paperonboarding.PaperOnboardingFragment;
 import com.ramotion.paperonboarding.PaperOnboardingPage;
 import com.ramotion.paperonboarding.listeners.PaperOnboardingOnChangeListener;
 import com.ramotion.paperonboarding.listeners.PaperOnboardingOnRightOutListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -34,6 +37,8 @@ public class SplashActivity extends AppCompatActivity {
     Integer currentVersionCode;
     SharedPreferences prefs;
     int savedVersionCode;
+    private DatabaseReference db;
+
 
     private FirebaseAuth auth;
 
@@ -46,6 +51,7 @@ public class SplashActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         auth = FirebaseAuth.getInstance();
+        db = FirebaseDatabase.getInstance().getReference();
 
         if(auth.getCurrentUser()==null) {
             getWindow().setStatusBarColor(Color.parseColor("#678FB4"));
@@ -90,13 +96,22 @@ public class SplashActivity extends AppCompatActivity {
 //                    prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
                     OAuthProvider.Builder provider = OAuthProvider.newBuilder("microsoft.com");
                     provider.addCustomParameter("tenant", "850aa78d-94e1-4bc6-9cf3-8c11b530701c");
-                    Task<AuthResult> pendingResultTask = auth.getPendingAuthResult();
                     auth
                             .startActivityForSignInWithProvider(/* activity= */ SplashActivity.this, provider.build())
                             .addOnSuccessListener(
                                     new OnSuccessListener<AuthResult>() {
                                         @Override
                                         public void onSuccess(AuthResult authResult) {
+                                            if(authResult.getAdditionalUserInfo().isNewUser()) {
+                                                final HashMap<String, String> info = new HashMap<>();
+                                                Log.e("Here email", auth.getCurrentUser().getEmail());
+                                                Log.e("Here name", auth.getCurrentUser().getDisplayName());
+                                                Log.e("Here uid", auth.getCurrentUser().getUid());
+                                                info.put("Email", auth.getCurrentUser().getEmail());
+                                                info.put("Name", auth.getCurrentUser().getDisplayName());
+                                                info.put("Score", "0");
+                                                db.child("Users").child(auth.getCurrentUser().getUid()).setValue(info);
+                                            }
                                             Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
                                             startActivity(intent);
                                             finish();
@@ -144,6 +159,12 @@ public class SplashActivity extends AppCompatActivity {
                                                 new OnSuccessListener<AuthResult>() {
                                                     @Override
                                                     public void onSuccess(AuthResult authResult) {
+                                                        if(authResult.getAdditionalUserInfo().isNewUser()) {
+                                                            final HashMap<String, String> info = new HashMap<>();
+                                                            info.put("Name", auth.getCurrentUser().getDisplayName());
+                                                            info.put("Score", "0");
+                                                            db.child(auth.getCurrentUser().getEmail()).setValue(info);
+                                                        }
                                                         Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
                                                         startActivity(intent);
                                                         finish();
@@ -171,6 +192,12 @@ public class SplashActivity extends AppCompatActivity {
                             new OnSuccessListener<AuthResult>() {
                                 @Override
                                 public void onSuccess(AuthResult authResult) {
+                                    if(authResult.getAdditionalUserInfo().isNewUser()) {
+                                        final HashMap<String, String> info = new HashMap<>();
+                                        info.put("Name", auth.getCurrentUser().getDisplayName());
+                                        info.put("Score", "0");
+                                        db.child(auth.getCurrentUser().getEmail()).setValue(info);
+                                    }
                                     Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
                                     startActivity(intent);
                                     finish();
