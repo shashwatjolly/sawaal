@@ -61,7 +61,6 @@ public class OtherProfile extends AppCompatActivity {
         email = findViewById(R.id.profileemail);
         branch = findViewById(R.id.profilebranch);
         donebtn = findViewById(R.id.donebtn);
-        editbtn = findViewById(R.id.editbtn);
         profileimg = findViewById(R.id.profileimg);
         ll = findViewById(R.id.llprofile);
 
