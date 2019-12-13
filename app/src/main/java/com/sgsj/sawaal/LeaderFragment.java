@@ -169,12 +169,11 @@ public class LeaderFragment extends Fragment {
                         if(issue.getKey().toString().equals("Admins"))
                             continue;
                         Log.e("lp",issue.getKey());
-                        Log.e("leader",issue.child("Username").getValue().toString());
-                        Uri u = Uri.parse(issue.child("ProfilePic").getValue().toString());
+                        Log.e("leader",issue.child("Name").getValue().toString());
                         ImageView iv = new ImageView(getContext());
                         iv.setImageResource(R.drawable.ic_launcher_background);
                         lastKnownScore = min(lastKnownScore, Integer.valueOf(issue.child("Score").getValue().toString()));
-                        newdata.add(new Data1(issue.child("Username").getValue().toString(),issue.child("Score").getValue().toString(), iv, u, issue.getKey()));
+                        newdata.add(new Data1(issue.child("Name").getValue().toString(),issue.child("Score").getValue().toString(), iv, issue.getKey()));
 
                     }
                     Collections.reverse(newdata);
@@ -252,12 +251,11 @@ public class LeaderFragment extends Fragment {
                         if(issue.getKey().toString().equals("Admins"))
                             continue;
                         Log.e("lp",issue.getKey());
-                        Log.e("leader",issue.child("Username").getValue().toString());
-                        Uri u = Uri.parse(issue.child("ProfilePic").getValue().toString());
+                        Log.e("leader",issue.child("Name").getValue().toString());
                         ImageView iv = new ImageView(getActivity());
                         iv.setImageResource(R.drawable.ic_launcher_background);
                         lastKnownScore = min(lastKnownScore, Integer.valueOf(issue.child("Score").getValue().toString()));
-                        data.add(new Data1(issue.child("Username").getValue().toString(),issue.child("Score").getValue().toString(), iv,  u, issue.getKey()));
+                        data.add(new Data1(issue.child("Name").getValue().toString(),issue.child("Score").getValue().toString(), iv, issue.getKey()));
 
                     }
                     Collections.reverse(data);
@@ -383,13 +381,12 @@ public class LeaderFragment extends Fragment {
                                 if(issue.getKey().toString().equals("Admins"))
                                     continue;
                                 Log.e("lp",issue.getKey());
-                                Log.e("leader",issue.child("Username").getValue().toString());
-                                Uri u = Uri.parse(issue.child("ProfilePic").getValue().toString());
+                                Log.e("leader",issue.child("Name").getValue().toString());
                                 ImageView iv = new ImageView(getContext());
                                 iv.setImageResource(R.drawable.ic_launcher_background);
                                 lastKnownScore = Integer.valueOf(issue.child("Score").getValue().toString());
 
-                                temp.add(new Data1(issue.child("Username").getValue().toString(),issue.child("Score").getValue().toString(), iv,  u, issue.getKey()));
+                                temp.add(new Data1(issue.child("Name").getValue().toString(),issue.child("Score").getValue().toString(), iv,  issue.getKey()));
         //                        data.add(new Data1(issue.child("Username").getValue().toString(),issue.child("Score").getValue().toString(), iv,  u, issue.getKey()));
 
                             }

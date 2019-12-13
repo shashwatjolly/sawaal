@@ -10,11 +10,10 @@ public class Data1 {
     public Uri profileimgurl;
     public String uid;
 
-    Data1(String profilename, String profilescore, ImageView profileimg, Uri profileimgurl, String uid) {
+    Data1(String profilename, String profilescore, ImageView profileimg, String uid) {
         this.profilename = profilename;
         this.profilescore = profilescore;
         this.profileimg = profileimg;
-        this.profileimgurl = profileimgurl;
         this.uid = uid;
     }
 }
