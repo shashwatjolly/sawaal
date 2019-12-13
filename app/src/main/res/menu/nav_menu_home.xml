@@ -14,7 +14,4 @@
     <item android:id="@+id/about"
         android:icon="@drawable/ic_info_outline_black_24dp"
         android:title="About"/>
-    <item android:id="@+id/resendverification"
-        android:icon="@drawable/ic_email_black_24dp"
-        android:title="Verify Email"/>
 </menu>

@@ -212,7 +212,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 
         });
 
-        holder.cv.setOnClickListener(new View.OnClickListener() {
+            holder.cv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 OpenOrigFile(v,list.get(position).fileurl);
@@ -220,6 +220,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 
         });
     }
+    
 
     public void OpenOrigFile(View v,Uri paperURL)
     {
