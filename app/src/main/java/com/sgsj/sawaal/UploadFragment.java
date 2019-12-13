@@ -243,12 +243,6 @@ public class UploadFragment extends Fragment {
         uploadpdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(!auth.getCurrentUser().isEmailVerified())
-                {
-                    Toast.makeText(getContext(), "Please Verify Your Email", Toast.LENGTH_LONG).show();
-                    return;
-                }
                 code = inputcode.getText().toString().replaceAll("\\s","").toUpperCase();
                 Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
                 prof = inputprof.getText().toString();

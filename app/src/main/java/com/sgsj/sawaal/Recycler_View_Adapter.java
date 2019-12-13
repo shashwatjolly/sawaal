@@ -220,7 +220,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 
         });
     }
-    
+
 
     public void OpenOrigFile(View v,Uri paperURL)
     {
