@@ -101,6 +101,10 @@ public class Recycler_View_Adapter1 extends RecyclerView.Adapter<RecyclerView.Vi
                 for (String s : holder.profilename.getText().toString().split(" ")) {
                     initials+=s.charAt(0);
                 }
+                int len = initials.length();
+                if(len>1) {
+                    initials = ""+initials.charAt(0)+initials.charAt(len-1);
+                }
                 TextDrawable profileimgdrawable = TextDrawable.builder().beginConfig().width(480).height(480).fontSize(160).endConfig().buildRound(initials, color);
                 holder.profileimg.setImageDrawable(profileimgdrawable);
                 emailList.add(position, profileemail);

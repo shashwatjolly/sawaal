@@ -105,6 +105,10 @@ public class OtherProfile extends AppCompatActivity {
                         for (String s : name.getText().toString().split(" ")) {
                             initials+=s.charAt(0);
                         }
+                        int len = initials.length();
+                        if(len>1) {
+                            initials = ""+initials.charAt(0)+initials.charAt(len-1);
+                        }
                         TextDrawable profileimgdrawable = TextDrawable.builder().beginConfig().width(480).height(480).fontSize(160).endConfig().buildRound(initials, color);
                         profileimg.setImageDrawable(profileimgdrawable);
                         int colorbg = ColorUtils.blendARGB(color, Color.BLACK, 0.4f);
@@ -128,6 +132,10 @@ public class OtherProfile extends AppCompatActivity {
                 String initials = "";
                 for (String s : name.getText().toString().split(" ")) {
                     initials+=s.charAt(0);
+                }
+                int len = initials.length();
+                if(len>1) {
+                    initials = ""+initials.charAt(0)+initials.charAt(len-1);
                 }
                 TextDrawable profileimgdrawable = TextDrawable.builder().beginConfig().width(480).height(480).fontSize(160).endConfig().buildRound(initials, color);
                 profileimg.setImageDrawable(profileimgdrawable);
