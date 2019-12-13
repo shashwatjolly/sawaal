@@ -56,9 +56,11 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
 
@@ -421,6 +423,14 @@ public class UploadFragment extends Fragment {
             mapper.put("Course_Type",code+"_"+type);
             mapper.put("Course_Year_Type",code+"_"+year+"_"+type);
 
+            //Upvotes and Downvotes
+            mapper.put("upvoteCount","0");
+            mapper.put("downvoteCount","0");
+
+            final List<String> mails = new ArrayList<String>();
+            mails.add("Dummy Mail");
+
+
             //getting the storage reference
             StorageReference sRef = mStorageReference.child("Uploads/" + file_name);
 
@@ -445,6 +455,11 @@ public class UploadFragment extends Fragment {
                                 public void onSuccess(Uri uri) {
                                     mapper.put("FileUrl",uri.toString());
                                     dref1.setValue(mapper);
+
+                                    dref1.child("upvoters").setValue(mails);
+                                    dref1.child("downvoters").setValue(mails);
+
+
                                     increaseScoreUpload();
                                     uploadpdf.revertAnimation();
                                     uploadpdf.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.roundedbtnbg));
