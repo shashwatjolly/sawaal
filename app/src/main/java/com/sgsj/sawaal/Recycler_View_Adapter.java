@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -38,8 +39,13 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -50,6 +56,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -71,11 +78,13 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
     final DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("Hacks");
     StorageReference mStorageReference = FirebaseStorage.getInstance().getReference();
 
+
     private FirebaseAuth auth = FirebaseAuth.getInstance();;
     Resources resources;
     TextView displaytextbrowser;
     boolean dismissed;
     boolean doneupload;
+    boolean hasUpvoted, hasDownvoted;
     String newpdfurl;
 
     String storer;
@@ -103,47 +112,97 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
     }
 
     @Override
-    public void onBindViewHolder(View_Holder holder, final int position) {
+    public void onBindViewHolder(final View_Holder holder, final int position) {
 
-        //Use the provided View Holder on the onCreateViewHolder method to populate the current row on the RecyclerView
-//        holder.papername.setText(list.get(position).filename);
-        holder.paperuploadedby.setText("Uploaded by: " + list.get(position).username);
+        holder.papervotes.setText("Total Votes: " + list.get(position).votes);
         holder.paperkaprof.setText("Prof: " + list.get(position).prof);
         holder.papertype.setText(list.get(position).typeofpaper);
         holder.paperkayear.setText(list.get(position).year);
         holder.papercoursecode.setText(list.get(position).course_code);
         origpdf=list.get(position).fileurl;
-
         recycler = this;
 
         faulter=list.get(position).usermail;
 
-//        final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users"); //Path in database where to check
-//        Query query = testRef.orderByChild("Username").equalTo(list.get(position).username);
-//        query.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists()) {
-//                    // dataSnapshot is the "issue" node with all children with id 0
-////                                Toast.makeText(getContext(),"Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
-//                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
-//                        // do something with the individual "issues"
-//                        faulter = issue.child("Email").getValue().toString();
-//                        Log.e("check",faulter);
-//
-//                    }
-//                }
-//                else
-//                {
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
+        final String currentUser = auth.getCurrentUser().getEmail();
+        String toRef = "Uploads/"+list.get(position).key;
+        final DatabaseReference uploads = FirebaseDatabase.getInstance().getReference(toRef);
+
+        hasUpvoted = list.get(position).upvoted;
+        hasDownvoted = list.get(position).downvoted;
+
+        if(hasUpvoted){
+            holder.upvotebtn.setChecked(true);
+            holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
+        }
+        else{
+            holder.upvotebtn.setChecked(false);
+            holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+        }
+
+        if(hasDownvoted){
+            holder.downvotebtn.setChecked(true);
+            holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
+        }
+        else{
+            holder.downvotebtn.setChecked(false);
+            holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+        }
+
+        holder.upvotebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+
+                        performTransaction(uploads, currentUser, 1, 0, 1, 0, 0, 0);
+                        list.get(position).votes++;
+
+                        if(holder.downvotebtn.isChecked()){
+                        holder.downvotebtn.setChecked(false);
+                        holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                        }
+                        else
+                        {
+                            holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+
+                        }
+
+                    holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
+                } else {
+
+                    performTransaction(uploads,currentUser,-1,0,0,1,0,0);
+                    list.get(position).votes--;
+                    holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+
+                    holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                }
+            }
+        });
+
+        holder.downvotebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                        performTransaction(uploads, currentUser, 0, 1, 0, 0, 1, 0);
+                        list.get(position).votes--;
+
+
+                        if(holder.upvotebtn.isChecked()){
+                            holder.upvotebtn.setChecked(false);
+                            holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                        }
+                        else{
+                            holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                        }
+
+                    holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
+                } else {
+                    performTransaction(uploads,currentUser,0,-1,0,0,0,1);
+                    list.get(position).votes++;
+                    holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                    holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                }
+            }
+        });
+
 
         holder.downloadbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,149 +211,151 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
             }
 
         });
+    }
 
-        holder.hackbtn.setOnClickListener(new View.OnClickListener() {
+    public void performTransaction(DatabaseReference ref, final String mail, final Integer upvupd, final Integer downvupd,
+                                   final Integer addupv, final Integer delupv, final Integer addown, final Integer deldown) {
+        final DatabaseReference ref5 = ref;
+        final DatabaseReference ref1 = ref5.child("upvoteCount");
+        final DatabaseReference ref2 = ref5.child("downvoteCount");
+        final DatabaseReference ref3 = ref5.child("upvoters");
+        final DatabaseReference ref4 = ref5.child("downvoters");
+
+        ref1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
-                String umail = list.get(position).usermail;
-                Log.e("TAG", "onClick: "+umail);
-                Log.e("TAG", "onClick1: "+auth.getCurrentUser().getEmail());
-                if(auth.getCurrentUser().getEmail().equals(umail)) {
-                    Toast.makeText(v.getContext(), "Hacking your own paper is not allowed", Toast.LENGTH_SHORT).show();
-                    return;
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ref1.runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        if(mutableData.getValue() != null) {
+                            String votes = mutableData.getValue().toString();
+                            Integer vot = Integer.parseInt(votes);
+                            vot = vot + upvupd;
+                            mutableData.setValue(vot.toString());
+                        }
+                        return Transaction.success(mutableData);
+
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b,
+                                           DataSnapshot dataSnapshot) {
+                        // Transaction completed
+                    }
+                });
                 }
-                dismissed=false;
-                doneupload=false;
-                storer="Not Uploaded";
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setTitle("Hack this Paper");
-// I'm using fragment here so I'm using getView() to provide ViewGroup
-// but you can provide here any other instance of ViewGroup from your Fragment / Activity
-                final View viewInflated = LayoutInflater.from(v.getContext()).inflate(R.layout.hackdialog, (ViewGroup) v.findViewById(android.R.id.content), false);
-// Set up the input
-                final EditText input = (EditText) viewInflated.findViewById(R.id.input);
-                displaytextbrowser = viewInflated.findViewById(R.id.displaytextbrowser);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
 
-                RadioGroup rg = (RadioGroup) viewInflated.findViewById(R.id.radioGroup1);
-                final String type = ((RadioButton)viewInflated.findViewById(rg.getCheckedRadioButtonId())).getText().toString();
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    System.out.println("The read failed: " + databaseError.getCode());
+                }
+            });
 
-                browse = viewInflated.findViewById(R.id.browser);
-                browse.setOnClickListener(new View.OnClickListener() {
+        ref2.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                ref2.runTransaction(new Transaction.Handler() {
                     @Override
-                    public void onClick(View v) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(viewInflated.getContext(),
-                                Manifest.permission.READ_EXTERNAL_STORAGE)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions((Activity)v.getContext(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                            return;
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        if(mutableData.getValue() != null) {
+                            String votes = mutableData.getValue().toString();
+                            Integer vot = Integer.parseInt(votes);
+                            vot = vot + downvupd;
+                            mutableData.setValue(vot.toString());
                         }
+                        return Transaction.success(mutableData);
 
-                        //creating an intent for file chooser
-                        Intent intent = new Intent();
-                        intent.setType("application/pdf");
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
-                        ((HomeActivity)(v.getContext())).startActivityForResult(Intent.createChooser(intent, "Select File"), PICK_PDF_CODE);
-                        resources = ((HomeActivity)(v.getContext())).getResources();
                     }
 
-                });
-
-                builder.setView(viewInflated);
-
-// Set up the buttons
-                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        String store = input.getText().toString();
-                        Log.e("TAG", "onClick: "+store);
-                        final String uniqueId = mDatabaseReference.push().getKey();
-                        final DatabaseReference dref1 = mDatabaseReference.child(uniqueId);
-
-// Put data in the JSON object
-                        try {
-                            mapper.put("alert",store);
-                            mapper.put("title", "Kaam badh gaya bc!");
-                            mapper.put("OrigPdf",origpdf.toString());
-
-                            mapper.put("Hacker",auth.getCurrentUser().getEmail());
-                            mapper.put("Faulter",faulter);
-                            mapper.put("newpdfurl",storer);
-                            mapper.put("type",type);
-
-                            mapper.put("PaperKey",list.get(position).key);
-
-
-
-                            data.put("alert",store);
-                            data.put("title", "Kaam badh gaya bc!");
-                            data.put("OrigPdf",origpdf);
-                            data.put("Hacker",auth.getCurrentUser().getEmail());
-                            data.put("Faulter",faulter);
-                            data.put("newpdfurl",storer);
-                            data.put("type",type);
-                            data.put("UniqueId",uniqueId);
-                            data.put("PaperKey",list.get(position).key);
-
-                        } catch ( JSONException e) {
-                            // should not happen
-                            throw new IllegalArgumentException("unexpected parsing error", e);
-                        }
-// Configure the push
-
-
-
-                        ParsePush push = new ParsePush();
-//                        push.setChannel("News");
-                        push.setData(data);
-                        push.setChannel("Hackers");
-                        push.sendInBackground();
-
-
-                        dref1.setValue(mapper);
+                    public void onComplete(DatabaseError databaseError, boolean b,
+                                           DataSnapshot dataSnapshot) {
+                        // Transaction completed
                     }
                 });
-                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+            }
 
-                hackerdialog = builder.create();
-                hackerdialog.show();
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
 
-                hackerdialog.setOnCancelListener(new DialogInterface.OnCancelListener()
-                {
+        ref3.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                ref3.runTransaction(new Transaction.Handler() {
                     @Override
-                    public void onCancel(DialogInterface dialog)
-                    {
-                        Log.d("TAG", "Cancelled!!!!!!!!!!!!");
-                        dismissed=true;
-                        if(doneupload) {
-                            StorageReference newpdfref = FirebaseStorage.getInstance().getReferenceFromUrl(newpdfurl);
-                            newpdfref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    // File deleted successfully
-                                    Log.d("TAG", "onSuccess: deleted file2");
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception exception) {
-                                    // Uh-oh, an error occurred!
-                                    Log.d("TAG", "onFailure: did not delete file");
-                                }
-                            });
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        if(mutableData.getValue()!=null) {
+                            List<String> upvoters = (List<String>) mutableData.getValue();
+
+                            if (addupv == 1) {
+                                upvoters.add(mail);
+                            } else if (delupv == 1) {
+                                upvoters.remove(mail);
+                            }
+
+                            mutableData.setValue(upvoters);
                         }
+                        return Transaction.success(mutableData);
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b,
+                                           DataSnapshot dataSnapshot) {
+                        // Transaction completed
                     }
                 });
 
             }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
         });
-        //animate(holder);
+        ref4.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                ref4.runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        if(mutableData.getValue()!=null) {
+                            List<String> downvoters = (List<String>) mutableData.getValue();
+                            if (addown == 1) {
+                                downvoters.add(mail);
+                            } else if (deldown == 1) {
+                                downvoters.remove(mail);
+                            }
+                            mutableData.setValue(downvoters);
+                        }
+                        return Transaction.success(mutableData);
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b,
+                                           DataSnapshot dataSnapshot) {
+                        // Transaction completed
+                    }
+                });
+            }
+
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
+
+
+
+
+
     }
 
     public void uploadFile(final Uri filePath, String newpdfname) {
@@ -375,7 +436,6 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 
 
     }
-
 
     public void downloadFile(Uri u, String filename, final View v) {
         DownloadManager.Request request = new DownloadManager.Request(u);
