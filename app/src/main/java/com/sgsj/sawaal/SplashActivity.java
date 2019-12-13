@@ -107,8 +107,10 @@ public class SplashActivity extends AppCompatActivity {
                                                 Log.e("Here email", auth.getCurrentUser().getEmail());
                                                 Log.e("Here name", auth.getCurrentUser().getDisplayName());
                                                 Log.e("Here uid", auth.getCurrentUser().getUid());
+                                                Log.e("User profile", authResult.getAdditionalUserInfo().getProfile().get("surname").toString());
                                                 info.put("Email", auth.getCurrentUser().getEmail());
                                                 info.put("Name", auth.getCurrentUser().getDisplayName());
+                                                info.put("Rollno", authResult.getAdditionalUserInfo().getProfile().get("surname").toString());
                                                 info.put("Score", "0");
                                                 db.child("Users").child(auth.getCurrentUser().getUid()).setValue(info);
                                             }
