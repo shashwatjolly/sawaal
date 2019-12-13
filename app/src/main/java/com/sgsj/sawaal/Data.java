@@ -4,7 +4,7 @@ import android.net.Uri;
 
 public class Data {
         public String course_code;
-        public String usermail;
+        public String uploaderID;
         public String year;
         public String typeofpaper;
         public String filename;
@@ -15,11 +15,11 @@ public class Data {
 
         public boolean upvoted,downvoted;
 
-        Data(String course_code,String usermail, String year, String typeofpaper , String filename , String prof, Uri fileurl,
+        Data(String course_code,String uploaderID, String year, String typeofpaper , String filename , String prof, Uri fileurl,
              String key, Integer votes,Boolean upvoted, Boolean downvoted) {
             this.course_code = course_code;
             this.year = year;
-            this.usermail=usermail;
+            this.uploaderID=uploaderID;
             this.typeofpaper = typeofpaper;
             this.filename = filename;
             this.prof=prof;

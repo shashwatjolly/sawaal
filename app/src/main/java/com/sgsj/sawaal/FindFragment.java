@@ -226,7 +226,7 @@ public class FindFragment extends Fragment {
                                     Log.e("check",issue.getKey().toString());
 
                                     String cc = issue.child("CourseCode").getValue().toString();
-                                    String ue = issue.child("User_Email").getValue().toString();
+                                    String ue = issue.child("uploaderID").getValue().toString();
                                     String ye = issue.child("Year").getValue().toString();
                                     String ty = issue.child("Type").getValue().toString();
                                     String fn = issue.child("FileName").getValue().toString().substring(0,20);
@@ -307,7 +307,7 @@ public class FindFragment extends Fragment {
                                     String fn = issue.child("FileName").getValue().toString().substring(0,20);
                                     String pr = issue.child("Prof").getValue().toString();
                                     Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
-                                    String ue = issue.child("User_Email").getValue().toString();
+                                    String ue = issue.child("uploaderID").getValue().toString();
 
 
                                     String key=issue.getKey().toString();
@@ -383,7 +383,7 @@ public class FindFragment extends Fragment {
                                     String ty = issue.child("Type").getValue().toString();
                                     String fn = issue.child("FileName").getValue().toString().substring(0,20);
                                     String pr = issue.child("Prof").getValue().toString();
-                                    String ue = issue.child("User_Email").getValue().toString();
+                                    String ue = issue.child("uploaderID").getValue().toString();
 
                                     Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
 
@@ -463,7 +463,7 @@ public class FindFragment extends Fragment {
                                     String fn = issue.child("FileName").getValue().toString().substring(0,20);
                                     String pr = issue.child("Prof").getValue().toString();
                                     Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
-                                    String ue = issue.child("User_Email").getValue().toString();
+                                    String ue = issue.child("uploaderID").getValue().toString();
 
                                     Integer upvotes = Integer.parseInt(issue.child("upvoteCount").getValue().toString());
                                     Integer downvotes = Integer.parseInt(issue.child("downvoteCount").getValue().toString());

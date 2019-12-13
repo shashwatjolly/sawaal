@@ -410,7 +410,7 @@ public class UploadFragment extends Fragment {
             mapper.put("DateOfUpload",date);
             mapper.put("FileName",file_name);
             mapper.put("Prof",prof);
-            mapper.put("User_Email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            mapper.put("uploaderID", FirebaseAuth.getInstance().getCurrentUser().getUid());
             mapper.put("Course_Year",code+"_"+year);
             mapper.put("Course_Type",code+"_"+type);
             mapper.put("Course_Year_Type",code+"_"+year+"_"+type);
