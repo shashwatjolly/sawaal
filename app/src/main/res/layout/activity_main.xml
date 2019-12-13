@@ -24,63 +24,11 @@
             android:textColor="#000"
             android:textSize="100dp" />
 
-        <!-- Email Label -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:textColorHint="@android:color/darker_gray"
-            android:layout_marginTop="8dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Email"
-                android:backgroundTint="@android:color/darker_gray"
-                android:inputType="textEmailAddress" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Password Label -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:textColorHint="@android:color/darker_gray"
-            android:layout_marginTop="8dp"
-            app:passwordToggleEnabled="true">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Password"
-                android:backgroundTint="@android:color/darker_gray"
-                android:inputType="textPassword"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
-        <br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
-            android:id="@+id/btn_login"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/roundedbtnbg"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Login"
-            app:spinning_bar_width="4dp"
-            app:spinning_bar_color="#FFF"
-            app:spinning_bar_padding="6dp"
-            android:layout_marginBottom="24dp"
-            android:layout_marginTop="40dp"
-            app:initialCornerAngle="45dp"
-            app:finalCornerAngle="45dp"/>
 
         <br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
             android:id="@+id/btn_login_outlook"
@@ -97,38 +45,6 @@
             android:layout_marginTop="40dp"
             app:initialCornerAngle="45dp"
             app:finalCornerAngle="45dp"/>
-
-        <!--<android.support.v7.widget.AppCompatButton-->
-            <!--android:id="@+id/btn_login"-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginBottom="24dp"-->
-            <!--android:layout_marginTop="40dp"-->
-            <!--android:padding="12dp"-->
-            <!--android:text="Login"-->
-            <!--android:background="@color/colorAccent"/>-->
-
-        <TextView
-            android:id="@+id/forgotp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="50dp"
-            android:clickable="true"
-            android:gravity="center"
-            android:textColor="@android:color/darker_gray"
-            android:text="Forgot password?"
-            android:textSize="16dip" />
-
-        <TextView
-            android:id="@+id/link_signup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:textColor="@android:color/darker_gray"
-            android:clickable="true"
-            android:gravity="center"
-            android:text="No account yet?"
-            android:textSize="16dip" />
 
     </LinearLayout>
 </ScrollView>
