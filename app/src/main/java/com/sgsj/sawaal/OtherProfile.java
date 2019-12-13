@@ -8,6 +8,7 @@ import android.net.Uri;
 import androidx.annotation.ColorInt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.util.Pair;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +21,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,20 +35,16 @@ import com.squareup.picasso.Picasso;
 import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.sgsj.sawaal.Recycler_View_Adapter1.v;
+import static java.lang.Integer.parseInt;
+
 
 public class OtherProfile extends AppCompatActivity {
 
     private FirebaseAuth auth;
-    private TextView name, score, uploads, hacks, email, phone, branch;
-    private EditText newname, newemail, newphone;
-    private CircularProgressButton donebtn;
-    private Button editbtn;
-    private DatabaseReference db;
+    private TextView name, score, email, rollno;
     private CircleImageView profileimg;
-    private boolean complete1, complete2, complete3;
     private LinearLayout ll;
-    private String profileimgurl;
+    private String uid, profileemail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,20 +52,13 @@ public class OtherProfile extends AppCompatActivity {
         setContentView(R.layout.activity_other_profile);
         getSupportActionBar().setTitle("Profile");
         auth = FirebaseAuth.getInstance();
-        db = FirebaseDatabase.getInstance().getReference();
         name = findViewById(R.id.profilename);
         score = findViewById(R.id.profilescore);
-        uploads = findViewById(R.id.profileuploads);
-        hacks = findViewById(R.id.profilehacks);
         email = findViewById(R.id.profileemail);
-        branch = findViewById(R.id.profilebranch);
-        donebtn = findViewById(R.id.donebtn);
         profileimg = findViewById(R.id.profileimg);
+        rollno = findViewById(R.id.profilerollno);
         ll = findViewById(R.id.llprofile);
 
-
-        extractbranch();
-        email.setText(auth.getCurrentUser().getEmail());
 
 //        Dali.create(this).load(R.drawable.ic_launcher_background).blurRadius(12).into(profileimg);
 //        BlurKit.init(this);
@@ -93,85 +85,131 @@ public class OtherProfile extends AppCompatActivity {
         if (extras != null) {
             name.setText(extras.getString("name"));
             score.setText(extras.getString("score"));
-            profileimgurl = extras.getString("url");
-            String done = extras.getString("done");
-            int pos = extras.getInt("pos");
-//            profileimg.setImageDrawable(v.profileimg.getDrawable());
-//            ImageView i = getParent().findViewById(Integer.parseInt(id));
-//            profileimg.setImageDrawable(i.getDrawable());
-            Log.e(profileimgurl, "HMMDP");
-            if(done.equals("yes")) {
-                profileimg.setImageDrawable(v.profileimg.getDrawable());
-                Bitmap b = ((BitmapDrawable) profileimg.getDrawable()).getBitmap();
-                Palette.from(b).generate(new Palette.PaletteAsyncListener() {
-                    public void onGenerated(Palette p) {
-                        int color = p.getLightVibrantColor(p.getDarkVibrantColor(getResources().getColor(R.color.colorAccent)));
-                        Palette.Swatch psVibrant = p.getVibrantSwatch();
-//                        color = psVibrant.getPopulation();
-                        Palette.Swatch psMuted = p.getMutedSwatch();
-//                        int color = getResources().getColor(R.color.colorPrimary);
-//                        if(psVibrant!=null) {
-//                            color = psVibrant.getRgb();
-//                        }
-//                        else if(psMuted!=null) {
-//                            color = psMuted.getRgb();
-//                        }
-                        ll.setBackgroundColor(color);
-                        name.setTextColor(getContrastColor(color));
-                        profileimg.setBorderColor(getContrastColor(color));
+            uid = extras.getString(("uid"));
+            profileemail = extras.getString("email");
+            if(profileemail.equals("NULL")) {
+                Log.e("Email", "NULL");
+                final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("Email"); //Path in database where to check
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        profileemail = dataSnapshot.getValue().toString();
+                        email.setText(profileemail);
+                        extractrollno();
+                        Log.e("Other profile mein", profileemail);
+//            String done = extras.getString("done");
+//            int pos = extras.getInt("pos");
+                        ColorGenerator generator = ColorGenerator.MATERIAL;
+                        final int color = generator.getColor(profileemail);
+                        String initials = "";
+                        for (String s : name.getText().toString().split(" ")) {
+                            initials+=s.charAt(0);
+                        }
+                        int len = initials.length();
+                        if(len>1) {
+                            initials = ""+initials.charAt(0)+initials.charAt(len-1);
+                        }
+                        TextDrawable profileimgdrawable = TextDrawable.builder().beginConfig().width(480).height(480).fontSize(160).endConfig().buildRound(initials, color);
+                        profileimg.setImageDrawable(profileimgdrawable);
+                        int colorbg = ColorUtils.blendARGB(color, Color.BLACK, 0.4f);
+                        ll.setBackgroundColor(colorbg);
+                        name.setTextColor(getContrastColor(colorbg));
+
+                    }
+                    public void onCancelled(DatabaseError firebaseError) {
+
                     }
                 });
             }
             else {
-                Picasso.with(getApplicationContext()).load(Uri.parse(profileimgurl)).placeholder(R.drawable.ic_launcher_background).into(profileimg, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Bitmap b = ((BitmapDrawable) profileimg.getDrawable()).getBitmap();
-                        Palette.from(b).generate(new Palette.PaletteAsyncListener() {
-                            public void onGenerated(Palette p) {
-                                int color = p.getLightVibrantColor(p.getDarkVibrantColor(getResources().getColor(R.color.colorAccent)));
-                                Palette.Swatch psVibrant = p.getVibrantSwatch();
-//                        color = psVibrant.getPopulation();
-                                Palette.Swatch psMuted = p.getMutedSwatch();
-//                        int color = getResources().getColor(R.color.colorPrimary);
-//                        if(psVibrant!=null) {
-//                            color = psVibrant.getRgb();
-//                        }
-//                        else if(psMuted!=null) {
-//                            color = psMuted.getRgb();
-//                        }
-                                ll.setBackgroundColor(color);
-                                name.setTextColor(getContrastColor(color));
-                                profileimg.setBorderColor(getContrastColor(color));
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError() {
-
-                    }
-                });
-
+                email.setText(profileemail);
+                extractrollno();
+                Log.e("Other profile", profileemail);
+//            String done = extras.getString("done");
+//            int pos = extras.getInt("pos");
+                ColorGenerator generator = ColorGenerator.MATERIAL;
+                final int color = generator.getColor(profileemail);
+                String initials = "";
+                for (String s : name.getText().toString().split(" ")) {
+                    initials+=s.charAt(0);
+                }
+                int len = initials.length();
+                if(len>1) {
+                    initials = ""+initials.charAt(0)+initials.charAt(len-1);
+                }
+                TextDrawable profileimgdrawable = TextDrawable.builder().beginConfig().width(480).height(480).fontSize(160).endConfig().buildRound(initials, color);
+                profileimg.setImageDrawable(profileimgdrawable);
+                int colorbg = ColorUtils.blendARGB(color, Color.BLACK, 0.4f);
+                ll.setBackgroundColor(colorbg);
+                name.setTextColor(getContrastColor(colorbg));
             }
+
+//            profileimg.setImageDrawable(v.profileimg.getDrawable());
+//            ImageView i = getParent().findViewById(Integer.parseInt(id));
+//            profileimg.setImageDrawable(i.getDrawable());
+//            if(done.equals("yes")) {
+//                profileimg.setImageDrawable(v.profileimg.getDrawable());
+//                Bitmap b = ((BitmapDrawable) profileimg.getDrawable()).getBitmap();
+//                Palette.from(b).generate(new Palette.PaletteAsyncListener() {
+//                    public void onGenerated(Palette p) {
+//                        int color = p.getLightVibrantColor(p.getDarkVibrantColor(getResources().getColor(R.color.colorAccent)));
+//                        Palette.Swatch psVibrant = p.getVibrantSwatch();
+////                        color = psVibrant.getPopulation();
+//                        Palette.Swatch psMuted = p.getMutedSwatch();
+////                        int color = getResources().getColor(R.color.colorPrimary);
+////                        if(psVibrant!=null) {
+////                            color = psVibrant.getRgb();
+////                        }
+////                        else if(psMuted!=null) {
+////                            color = psMuted.getRgb();
+////                        }
+//                        ll.setBackgroundColor(color);
+//                        name.setTextColor(getContrastColor(color));
+//                        profileimg.setBorderColor(getContrastColor(color));
+//                    }
+//                });
+//            }
+//            else {
+//                Picasso.with(getApplicationContext()).load(Uri.parse(profileimgurl)).placeholder(R.drawable.ic_launcher_background).into(profileimg, new com.squareup.picasso.Callback() {
+//                    @Override
+//                    public void onSuccess() {
+//                        Bitmap b = ((BitmapDrawable) profileimg.getDrawable()).getBitmap();
+//                        Palette.from(b).generate(new Palette.PaletteAsyncListener() {
+//                            public void onGenerated(Palette p) {
+//                                int color = p.getLightVibrantColor(p.getDarkVibrantColor(getResources().getColor(R.color.colorAccent)));
+//                                Palette.Swatch psVibrant = p.getVibrantSwatch();
+////                        color = psVibrant.getPopulation();
+//                                Palette.Swatch psMuted = p.getMutedSwatch();
+////                        int color = getResources().getColor(R.color.colorPrimary);
+////                        if(psVibrant!=null) {
+////                            color = psVibrant.getRgb();
+////                        }
+////                        else if(psMuted!=null) {
+////                            color = psMuted.getRgb();
+////                        }
+//                                ll.setBackgroundColor(color);
+//                                name.setTextColor(getContrastColor(color));
+//                                profileimg.setBorderColor(getContrastColor(color));
+//                            }
+//                        });
+//                    }
+//
+//                    @Override
+//                    public void onError() {
+//
+//                    }
+//                });
+//
+//            }
             //The key argument here must match that used in the other activity
         }
 
-
-//        Fade fade = new Fade();
-//        View decor = getWindow().getDecorView();
-//        fade.excludeTarget(decor.findViewById(R.id.action_bar_container), true);
-//        fade.excludeTarget(android.R.id.statusBarBackground, true);
-//        fade.excludeTarget(android.R.id.navigationBarBackground, true);
-//        fade.excludeTarget(R.id.ll, true);
-//        getWindow().setExitTransition(fade);
-
     }
 
-    public void extractscore()
+    public void extractrollno()
     {
         final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users"); //Path in database where to check
-        Query query = testRef.orderByChild("Email").equalTo(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        Query query = testRef.orderByChild("Email").equalTo(email.getText().toString());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -179,12 +217,7 @@ public class OtherProfile extends AppCompatActivity {
                     for (DataSnapshot issue : dataSnapshot.getChildren()) {
                         // do something with the individual "issues"
                         Log.e("check",issue.getKey().toString());
-
-                        score.setText(issue.child("Score").getValue().toString());
-                        complete1 = true;
-                        if(complete1 && complete2 && complete3) {
-                            editbtn.setVisibility(View.VISIBLE);
-                        }
+                        rollno.setText(issue.child("Rollno").getValue().toString());
                     }
 
                 } else {
@@ -196,90 +229,6 @@ public class OtherProfile extends AppCompatActivity {
 
             }
         });
-    }
-
-    public void extractmob()
-    {
-        final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users"); //Path in database where to check
-        Query query = testRef.orderByChild("Email").equalTo(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
-                        // do something with the individual "issues"
-                        Log.e("check",issue.getKey().toString());
-                        phone.setText(issue.child("Mobile_No").getValue().toString());
-                        complete2 = true;
-                        if(complete1 && complete2 && complete3) {
-                            editbtn.setVisibility(View.VISIBLE);
-                        }
-                    }
-
-                } else {
-
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    public void extractbranch()
-    {
-        final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users"); //Path in database where to check
-        Query query = testRef.orderByChild("Email").equalTo(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
-                        // do something with the individual "issues"
-                        Log.e("check1",issue.getKey().toString());
-
-                        branch.setText(issue.child("Branch").getValue().toString());
-                        complete3 = true;
-                        if(complete1 && complete2 && complete3) {
-                            editbtn.setVisibility(View.VISIBLE);
-                        }
-                    }
-
-                } else {
-
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    public void editprofile(View v) {
-//        newname.setText(name.getText());
-//        newphone.setText(phone.getText());
-//        name.setVisibility(View.GONE);
-//        phone.setVisibility(View.GONE);
-//        editbtn.setVisibility(View.GONE);
-//        newname.setVisibility(View.VISIBLE);
-//        newphone.setVisibility(View.VISIBLE);
-//        donebtn.setVisibility(View.VISIBLE);
-//        complete1 = false;
-//        complete2 = false;
-//        complete3 = false;
-        Intent i = new Intent(OtherProfile.this, EditProfile.class);
-        i.putExtra("name", name.getText());
-        i.putExtra("email", email.getText());
-        i.putExtra("uploads", uploads.getText());
-        i.putExtra("hacks", hacks.getText());
-        i.putExtra("phone", phone.getText());
-        i.putExtra("score", score.getText());
-        i.putExtra("branch", branch.getText());
-        Pair<View, String> p1 = Pair.create((View)editbtn, "profilebtn");
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(OtherProfile.this, p1);
-        ActivityCompat.startActivityForResult(this, i, 1, options.toBundle());
     }
 
     @Override
@@ -291,7 +240,6 @@ public class OtherProfile extends AppCompatActivity {
             String newmob = data.getStringExtra("newmob");
             String newname = data.getStringExtra("newname");
             name.setText(newname);
-            phone.setText(newmob);
             Intent returnIntent = new Intent();
             returnIntent.putExtra("newname", newname);
             setResult(2,returnIntent);

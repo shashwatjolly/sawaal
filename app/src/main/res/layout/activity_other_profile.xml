@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".OtherProfile"
+    tools:context=".ProfileActivity"
     android:orientation="vertical"
     android:background="#fafafa"
     android:id="@+id/ll">
@@ -14,7 +14,7 @@
         android:layout_height="310dp">
         <LinearLayout
             android:id="@+id/llprofile"
-            android:background="@color/green"
+            android:background="@color/colorAccent"
             android:layout_width="match_parent"
             android:layout_height="260dp"
             android:orientation="vertical">
@@ -50,33 +50,18 @@
                 android:textColor="#fff"
                 android:textStyle="bold"
                 android:textSize="24sp" />
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center"
-                android:theme="@style/WhiteEditTextStyle"
-                >
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/profilenameedit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#fff"
-                    android:textStyle="bold"
-                    android:textSize="24sp"
-                    android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
         <androidx.cardview.widget.CardView
-            android:layout_width="300dp"
+            android:layout_width="100dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
+            app:cardCornerRadius="20dp"
             android:layout_marginTop="220dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
-                android:weightSum="3">
+                android:weightSum="1">
                 <LinearLayout
                     android:gravity="center"
                     android:orientation="vertical"
@@ -100,54 +85,7 @@
                         android:textColor="@color/colorPrimaryDark"/>
 
                 </LinearLayout>
-                <LinearLayout
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Uploads"
-                        android:textSize="18sp"
-                        />
-                    <TextView
-                        android:id="@+id/profileuploads"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="..."
-                        android:textStyle="bold"
-                        android:textSize="18sp"
-                        android:paddingTop="10dp"
-                        android:textColor="@color/colorPrimary"/>
-
-                </LinearLayout>
-                <LinearLayout
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Hacks"
-                        android:textSize="18sp"
-                        />
-                    <TextView
-                        android:id="@+id/profilehacks"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="..."
-                        android:textStyle="bold"
-                        android:textSize="18sp"
-                        android:paddingTop="10dp"
-                        android:textColor="@color/colorPrimaryDark"/>
-
-                </LinearLayout>
             </LinearLayout>
-
         </androidx.cardview.widget.CardView>
     </RelativeLayout>
 
@@ -187,7 +125,7 @@
                 android:layout_height="36dp"
                 android:src="@drawable/ic_school_black_24dp"/>
             <TextView
-                android:id="@+id/profilebranch"
+                android:id="@+id/profilerollno"
                 android:textStyle="bold"
                 android:layout_gravity="center_vertical"
                 android:layout_width="wrap_content"
@@ -196,5 +134,4 @@
                 android:text="..."/>
         </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>
