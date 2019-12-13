@@ -44,6 +44,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -86,9 +87,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
     boolean doneupload;
     boolean hasUpvoted, hasDownvoted;
     String newpdfurl;
-
     String storer;
-
 
     List<Data> list = Collections.emptyList();
     Context context;
@@ -122,11 +121,12 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
         origpdf=list.get(position).fileurl;
         recycler = this;
 
-        faulter=list.get(position).usermail;
 
         final String currentUser = auth.getCurrentUser().getEmail();
         String toRef = "Uploads/"+list.get(position).key;
         final DatabaseReference uploads = FirebaseDatabase.getInstance().getReference(toRef);
+
+
 
         hasUpvoted = list.get(position).upvoted;
         hasDownvoted = list.get(position).downvoted;
@@ -153,7 +153,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
 
-                        performTransaction(uploads, currentUser, 1, 0, 1, 0, 0, 0);
+                        performTransaction(uploads, list.get(position).uploaderID, currentUser, 1, 0, 1, 0, 0, 0);
                         list.get(position).votes++;
 
                         if(holder.downvotebtn.isChecked()){
@@ -169,7 +169,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
                     holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
                 } else {
 
-                    performTransaction(uploads,currentUser,-1,0,0,1,0,0);
+                    performTransaction(uploads,list.get(position).uploaderID,currentUser,-1,0,0,1,0,0);
                     list.get(position).votes--;
                     holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
 
@@ -181,7 +181,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
         holder.downvotebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                        performTransaction(uploads, currentUser, 0, 1, 0, 0, 1, 0);
+                        performTransaction(uploads, list.get(position).uploaderID,currentUser, 0, 1, 0, 0, 1, 0);
                         list.get(position).votes--;
 
 
@@ -195,7 +195,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 
                     holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
                 } else {
-                    performTransaction(uploads,currentUser,0,-1,0,0,0,1);
+                    performTransaction(uploads,list.get(position).uploaderID,currentUser,0,-1,0,0,0,1);
                     list.get(position).votes++;
                     holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
                     holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
@@ -229,7 +229,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
         v.getContext().startActivity(intent);
     }
 
-    public void performTransaction(DatabaseReference ref, final String mail, final Integer upvupd, final Integer downvupd,
+    public void performTransaction(DatabaseReference ref, final String uploaderID, final String mail, final Integer upvupd, final Integer downvupd,
                                    final Integer addupv, final Integer delupv, final Integer addown, final Integer deldown) {
         final DatabaseReference ref5 = ref;
         final DatabaseReference ref1 = ref5.child("upvoteCount");
@@ -371,7 +371,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 
         // Updating score of person whose paper is upvoted or downvoted
         final Integer scoreUpdate = 5 * (upvupd-downvupd);
-        String toRef = "Users/" + FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String toRef = "Users/" + uploaderID;
         final DatabaseReference scoreRef = FirebaseDatabase.getInstance().getReference(toRef).child("Score");
         scoreRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
