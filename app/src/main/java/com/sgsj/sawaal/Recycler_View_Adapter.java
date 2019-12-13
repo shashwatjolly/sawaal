@@ -369,6 +369,43 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
         });
 
 
+        // Updating score of person whose paper is upvoted or downvoted
+        final Integer scoreUpdate = 5 * (upvupd-downvupd);
+        String toRef = "Users/" + FirebaseAuth.getInstance().getCurrentUser().getUid();
+        final DatabaseReference scoreRef = FirebaseDatabase.getInstance().getReference(toRef).child("Score");
+        scoreRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                scoreRef.runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        if(mutableData.getValue() != null) {
+                            String scrstr = mutableData.getValue().toString();
+                            Integer score = Integer.parseInt(scrstr);
+                            score += scoreUpdate;
+                            mutableData.setValue(score.toString());
+                        }
+                        return Transaction.success(mutableData);
+
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b,
+                                           DataSnapshot dataSnapshot) {
+                        // Transaction completed
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
+
+
+
+
     }
 
     public void uploadFile(final Uri filePath, String newpdfname) {

@@ -260,7 +260,7 @@ public class UploadFragment extends Fragment {
                     yearin.setError("Course code cannot be empty");
                 }
 
-                if(code!="" && year!="" && type!="" && file_uri!=null) {uploadpdf.startAnimation(); extractname();}
+                if(code!="" && year!="" && type!="" && file_uri!=null) {uploadpdf.startAnimation(); checkPaperandUpload();}
                 else if(code!="" && year!="" && type!="" && file_uri==null) {
                     Toast.makeText(getContext(), "Please select a file", Toast.LENGTH_SHORT).show();
                 }
@@ -323,36 +323,36 @@ public class UploadFragment extends Fragment {
 
     }
 
-    public void extractname()
-    {
-        final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users"); //Path in database where to check
-        Query query = testRef.orderByChild("Email").equalTo(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
-                        // do something with the individual "issues"
-                        Log.e("check",issue.getKey().toString());
-
-                        fullname = issue.child("Username").getValue().toString();
-                        checkPaperandUpload();
-
-
-                    }
-
-                } else {
-
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-    }
+//    public void extractname()
+//    {
+//        final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users"); //Path in database where to check
+//        Query query = testRef.orderByChild("Email").equalTo(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+//        query.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
+//                        // do something with the individual "issues"
+//                        Log.e("check",issue.getKey().toString());
+//
+//                        fullname = issue.child("Username").getValue().toString();
+//                        checkPaperandUpload();
+//
+//
+//                    }
+//
+//                } else {
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//
+//    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -405,14 +405,12 @@ public class UploadFragment extends Fragment {
             final String file_name =  inputdisplaytext.getText().toString()+"_"+date+"_"+System.currentTimeMillis();
             final HashMap<String,String> mapper = new HashMap<>();
             mapper.put("CourseCode",code);
-//            mapper.put("College",college);
             mapper.put("Year",year);
             mapper.put("Type",type);
             mapper.put("DateOfUpload",date);
             mapper.put("FileName",file_name);
             mapper.put("Prof",prof);
             mapper.put("User_Email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
-            mapper.put("Username",fullname);
             mapper.put("Course_Year",code+"_"+year);
             mapper.put("Course_Type",code+"_"+type);
             mapper.put("Course_Year_Type",code+"_"+year+"_"+type);
@@ -420,7 +418,6 @@ public class UploadFragment extends Fragment {
             //Upvotes and Downvotes
             mapper.put("upvoteCount","0");
             mapper.put("downvoteCount","0");
-
             final List<String> mails = new ArrayList<String>();
             mails.add("Dummy Mail");
 

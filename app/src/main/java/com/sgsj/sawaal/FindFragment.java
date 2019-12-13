@@ -226,7 +226,6 @@ public class FindFragment extends Fragment {
                                     Log.e("check",issue.getKey().toString());
 
                                     String cc = issue.child("CourseCode").getValue().toString();
-                                    String un = issue.child("Username").getValue().toString();
                                     String ue = issue.child("User_Email").getValue().toString();
                                     String ye = issue.child("Year").getValue().toString();
                                     String ty = issue.child("Type").getValue().toString();
@@ -266,7 +265,7 @@ public class FindFragment extends Fragment {
                                         }
                                     }
                                     String key=issue.getKey().toString();
-                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
+                                    paperdetails.add(new Data(cc,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
 
 
                                 }
@@ -303,7 +302,6 @@ public class FindFragment extends Fragment {
                                     Log.e("check",issue.getKey().toString());
 
                                     String cc = issue.child("CourseCode").getValue().toString();
-                                    String un = issue.child("Username").getValue().toString();
                                     String ye = issue.child("Year").getValue().toString();
                                     String ty = issue.child("Type").getValue().toString();
                                     String fn = issue.child("FileName").getValue().toString().substring(0,20);
@@ -344,7 +342,7 @@ public class FindFragment extends Fragment {
                                             down = false;
                                         }
                                     }
-                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
+                                    paperdetails.add(new Data(cc,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
 
 
                                 }
@@ -381,7 +379,6 @@ public class FindFragment extends Fragment {
 
                                     String cc = issue.child("CourseCode").getValue().toString();
 
-                                    String un = issue.child("Username").getValue().toString();
                                     String ye = issue.child("Year").getValue().toString();
                                     String ty = issue.child("Type").getValue().toString();
                                     String fn = issue.child("FileName").getValue().toString().substring(0,20);
@@ -423,7 +420,7 @@ public class FindFragment extends Fragment {
                                             down = false;
                                         }
                                     }
-                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
+                                    paperdetails.add(new Data(cc,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
 
 
                                 }
@@ -461,7 +458,6 @@ public class FindFragment extends Fragment {
 
                                     String cc = issue.child("CourseCode").getValue().toString();
 
-                                    String un = issue.child("Username").getValue().toString();
                                     String ye = issue.child("Year").getValue().toString();
                                     String ty = issue.child("Type").getValue().toString();
                                     String fn = issue.child("FileName").getValue().toString().substring(0,20);
@@ -500,7 +496,7 @@ public class FindFragment extends Fragment {
                                         }
                                     }
                                     String key=issue.getKey().toString();
-                                    paperdetails.add(new Data(cc,un,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
+                                    paperdetails.add(new Data(cc,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
 
 
                                 }
