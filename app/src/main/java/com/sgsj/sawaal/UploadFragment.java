@@ -18,6 +18,8 @@ import android.provider.OpenableColumns;
 
 import androidx.annotation.NonNull;
 import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
@@ -34,6 +36,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -519,15 +522,68 @@ public class UploadFragment extends Fragment {
 
     public void checkPaperandUpload() {
         if(type!="Other") {
-            final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads"); //Path in database where to check
-            Query query = testRef.orderByChild("Course_Year_Type").equalTo(code + "_" + year + "_" + type);
+            final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads").child(code+"_"+type).child(year); //Path in database where to check
+            Query query = testRef.orderByChild("totalVotes").limitToLast(1);
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         // dataSnapshot is the "issue" node with all children with id 0
-                        Toast.makeText(getContext(), "Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
-                        uploadpdf.revertAnimation();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setTitle("Upload Paper?");
+                        final View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.uploadcheckdialog, (ViewGroup) getView().findViewById(android.R.id.content), false);
+
+                        TextView coursecode = viewInflated.findViewById(R.id.papercoursecode);
+                        TextView type = viewInflated.findViewById(R.id.papertype);
+                        TextView year = viewInflated.findViewById(R.id.paperyear);
+                        TextView prof = viewInflated.findViewById(R.id.paperprof);
+                        TextView votes = viewInflated.findViewById(R.id.papervotes);
+
+                        for(DataSnapshot issue: dataSnapshot.getChildren()) {
+                            String cc = issue.child("CourseCode").getValue().toString();
+                            String ye = issue.child("Year").getValue().toString();
+                            String ty = issue.child("Type").getValue().toString();
+                            String pr = issue.child("Prof").getValue().toString();
+                            final Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
+                            Integer totalvotes = Integer.parseInt(issue.child("totalVotes").getValue().toString());
+                            coursecode.setText(cc);
+                            type.setText(ty);
+                            year.setText(ye);
+                            prof.setText("Prof: " + pr);
+                            votes.setText("Total Votes: " + totalvotes.toString());
+                            FrameLayout outer = viewInflated.findViewById(R.id.cardView);
+                            CardView cv = outer.findViewById(R.id.cardView);
+                            cv.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setDataAndType(furl, "application/pdf");
+                                    v.getContext().startActivity(intent);
+                                }
+
+                            });
+
+                        }
+
+                        builder.setView(viewInflated);
+                        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                uploadFile(file_uri);
+
+                            }
+                        });
+                        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                                uploadpdf.revertAnimation();
+                            }
+                        });
+
+                        AlertDialog uploadcheckdialog = builder.create();
+                        uploadcheckdialog.show();
                         // GIVE HACK OPTION
                     } else {
                         uploadFile(file_uri);
