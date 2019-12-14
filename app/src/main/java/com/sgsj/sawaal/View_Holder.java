@@ -26,6 +26,5 @@ public class View_Holder extends RecyclerView.ViewHolder {
         upvotebtn = itemView.findViewById(R.id.upvote);
         downvotebtn = itemView.findViewById(R.id.downvote);
     }
-
-
 }
+
