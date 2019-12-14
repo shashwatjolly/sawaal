@@ -422,6 +422,7 @@ public class UploadFragment extends Fragment {
             mails.add("Dummy Mail");
 
 
+
             //getting the storage reference
             StorageReference sRef = mStorageReference.child("Uploads/" + file_name);
 
@@ -449,6 +450,9 @@ public class UploadFragment extends Fragment {
 
                                     dref1.child("upvoters").setValue(mails);
                                     dref1.child("downvoters").setValue(mails);
+
+                                    //Total Votes
+                                    dref1.child("totalVotes").setValue(0);
 
 
                                     increaseScoreUpload();
