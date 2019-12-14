@@ -25,6 +25,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +70,7 @@ import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
 import static android.content.Context.DOWNLOAD_SERVICE;
 
 
-public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
+public class Recycler_View_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public static Recycler_View_Adapter recycler;
     JSONObject data = new JSONObject();
@@ -78,6 +79,8 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
     final HashMap<String,String> mapper = new HashMap<>();
     final DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("Hacks");
     StorageReference mStorageReference = FirebaseStorage.getInstance().getReference();
+    private static int TYPE_YEAR = 1;
+    private static int TYPE_PAPER = 2;
 
 
     private FirebaseAuth auth = FirebaseAuth.getInstance();;
@@ -102,124 +105,131 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
     final static int PICK_PDF_CODE = 2342;
 
     @Override
-    public View_Holder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         //Inflate the layout, initialize the View Holder
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_layout, parent, false);
-        View_Holder holder = new View_Holder(v);
-        return holder;
+        View v;
+        if(viewType==TYPE_PAPER) {
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_layout, parent, false);
+            View_Holder holder = new View_Holder(v);
+            return holder;
+        }
+        else {
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_layout_year, parent, false);
+            View_Holder_Year holder = new View_Holder_Year(v);
+            return holder;
+        }
 
     }
 
-    @Override
-    public void onBindViewHolder(final View_Holder holder, final int position) {
-
-        holder.papervotes.setText("Total Votes: " + list.get(position).votes);
-        holder.paperkaprof.setText("Prof: " + list.get(position).prof);
-        holder.papertype.setText(list.get(position).typeofpaper);
-        holder.paperkayear.setText(list.get(position).year);
-        holder.papercoursecode.setText(list.get(position).course_code);
-        origpdf=list.get(position).fileurl;
-        recycler = this;
-
-
-        final String currentUser = auth.getCurrentUser().getEmail();
-        String toRef = "Uploads/"+ list.get(position).course_code+"_"+list.get(position).typeofpaper
-                       + "/" + list.get(position).year + "/"+list.get(position).key;
-        final DatabaseReference uploads = FirebaseDatabase.getInstance().getReference(toRef);
+    public void onBindViewHolder(final RecyclerView.ViewHolder holderGen, final int position) {
+        if(getItemViewType(position)==TYPE_PAPER) {
+            final View_Holder holder = (View_Holder) holderGen;
+            holder.papervotes.setText("Total Votes: " + list.get(position).votes);
+            holder.paperkaprof.setText("Prof: " + list.get(position).prof);
+            holder.papertype.setText(list.get(position).typeofpaper);
+            holder.paperkayear.setText(list.get(position).year);
+            holder.papercoursecode.setText(list.get(position).course_code);
+            origpdf = list.get(position).fileurl;
+            recycler = this;
 
 
+            final String currentUser = auth.getCurrentUser().getEmail();
+            String toRef = "Uploads/" + list.get(position).course_code + "_" + list.get(position).typeofpaper
+                    + "/" + list.get(position).year + "/" + list.get(position).key;
+            final DatabaseReference uploads = FirebaseDatabase.getInstance().getReference(toRef);
 
-        hasUpvoted = list.get(position).upvoted;
-        hasDownvoted = list.get(position).downvoted;
 
-        if(hasUpvoted){
-            holder.upvotebtn.setChecked(true);
-            holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
-        }
-        else{
-            holder.upvotebtn.setChecked(false);
-            holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
-        }
+            hasUpvoted = list.get(position).upvoted;
+            hasDownvoted = list.get(position).downvoted;
 
-        if(hasDownvoted){
-            holder.downvotebtn.setChecked(true);
-            holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
-        }
-        else{
-            holder.downvotebtn.setChecked(false);
-            holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
-        }
+            if (hasUpvoted) {
+                holder.upvotebtn.setChecked(true);
+                holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
+            } else {
+                holder.upvotebtn.setChecked(false);
+                holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+            }
 
-        holder.upvotebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
+            if (hasDownvoted) {
+                holder.downvotebtn.setChecked(true);
+                holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
+            } else {
+                holder.downvotebtn.setChecked(false);
+                holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+            }
+
+            holder.upvotebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
 
                         performTransaction(uploads, list.get(position).uploaderID, currentUser, 1, 0, 1, 0, 0, 0);
                         list.get(position).votes++;
 
-                        if(holder.downvotebtn.isChecked()){
-                        holder.downvotebtn.setChecked(false);
-                        holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
-                        }
-                        else
-                        {
+                        if (holder.downvotebtn.isChecked()) {
+                            holder.downvotebtn.setChecked(false);
+                            holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                        } else {
                             holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
 
                         }
 
-                    holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
-                } else {
+                        holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
+                    } else {
 
-                    performTransaction(uploads,list.get(position).uploaderID,currentUser,-1,0,0,1,0,0);
-                    list.get(position).votes--;
-                    holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                        performTransaction(uploads, list.get(position).uploaderID, currentUser, -1, 0, 0, 1, 0, 0);
+                        list.get(position).votes--;
+                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
 
-                    holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                        holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                    }
                 }
-            }
-        });
+            });
 
-        holder.downvotebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                        performTransaction(uploads, list.get(position).uploaderID,currentUser, 0, 1, 0, 0, 1, 0);
+            holder.downvotebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        performTransaction(uploads, list.get(position).uploaderID, currentUser, 0, 1, 0, 0, 1, 0);
                         list.get(position).votes--;
 
 
-                        if(holder.upvotebtn.isChecked()){
+                        if (holder.upvotebtn.isChecked()) {
                             holder.upvotebtn.setChecked(false);
                             holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
-                        }
-                        else{
+                        } else {
                             holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
                         }
 
-                    holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
-                } else {
-                    performTransaction(uploads,list.get(position).uploaderID,currentUser,0,-1,0,0,0,1);
-                    list.get(position).votes++;
-                    holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
-                    holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                        holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
+                    } else {
+                        performTransaction(uploads, list.get(position).uploaderID, currentUser, 0, -1, 0, 0, 0, 1);
+                        list.get(position).votes++;
+                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                        holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                    }
                 }
-            }
-        });
+            });
 
 
-        holder.downloadbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                downloadFile(list.get(position).fileurl, list.get(position).filename, v);
-            }
+            holder.downloadbtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    downloadFile(list.get(position).fileurl, list.get(position).filename, v);
+                }
 
-        });
+            });
 
             holder.cv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                OpenOrigFile(v,list.get(position).fileurl);
-            }
+                @Override
+                public void onClick(View v) {
+                    OpenOrigFile(v, list.get(position).fileurl);
+                }
 
-        });
+            });
+        }
+        else {
+            final View_Holder_Year holder = (View_Holder_Year) holderGen;
+            holder.year.setText(list.get(position).year);
+        }
     }
 
 
@@ -566,6 +576,16 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
     public int getItemCount() {
         //returns the number of elements the RecyclerView will display
         return list.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (TextUtils.isEmpty(list.get(position).course_code)) {
+            return TYPE_YEAR;
+
+        } else {
+            return TYPE_PAPER;
+        }
     }
 
     @Override
