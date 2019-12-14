@@ -124,7 +124,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void onBindViewHolder(final RecyclerView.ViewHolder holderGen, final int position) {
         if(getItemViewType(position)==TYPE_PAPER) {
             final View_Holder holder = (View_Holder) holderGen;
-            holder.papervotes.setText("Total Votes: " + list.get(position).votes);
+            holder.papervotes.setText("" + list.get(position).votes);
             holder.paperkaprof.setText("Prof: " + list.get(position).prof);
             holder.papertype.setText(list.get(position).typeofpaper);
             holder.paperkayear.setText(list.get(position).year);
@@ -144,18 +144,18 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             if (hasUpvoted) {
                 holder.upvotebtn.setChecked(true);
-                holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
+                holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.ic_keyboard_arrow_up_orange_24dp));
             } else {
                 holder.upvotebtn.setChecked(false);
-                holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.ic_keyboard_arrow_up_black_24dp));
             }
 
             if (hasDownvoted) {
                 holder.downvotebtn.setChecked(true);
-                holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
+                holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.ic_keyboard_arrow_down_blue_24dp));
             } else {
                 holder.downvotebtn.setChecked(false);
-                holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.ic_keyboard_arrow_down_black_24dp));
             }
 
             holder.upvotebtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -167,20 +167,20 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                         if (holder.downvotebtn.isChecked()) {
                             holder.downvotebtn.setChecked(false);
-                            holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                            holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.ic_keyboard_arrow_down_black_24dp));
                         } else {
-                            holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                            holder.papervotes.setText("" + (list.get(position).votes));
 
                         }
 
-                        holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.upvoteon));
+                        holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.ic_keyboard_arrow_up_orange_24dp));
                     } else {
 
                         performTransaction(uploads, list.get(position).uploaderID, currentUser, -1, 0, 0, 1, 0, 0);
                         list.get(position).votes--;
-                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                        holder.papervotes.setText("" + (list.get(position).votes));
 
-                        holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                        holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.ic_keyboard_arrow_up_black_24dp));
                     }
                 }
             });
@@ -194,17 +194,17 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                         if (holder.upvotebtn.isChecked()) {
                             holder.upvotebtn.setChecked(false);
-                            holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                            holder.upvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.ic_keyboard_arrow_up_black_24dp));
                         } else {
-                            holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
+                            holder.papervotes.setText("" + (list.get(position).votes));
                         }
 
-                        holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.downvoteon));
+                        holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.ic_keyboard_arrow_down_blue_24dp));
                     } else {
                         performTransaction(uploads, list.get(position).uploaderID, currentUser, 0, -1, 0, 0, 0, 1);
                         list.get(position).votes++;
-                        holder.papervotes.setText("Total Votes: " + (list.get(position).votes));
-                        holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.roundedbtnbg));
+                        holder.papervotes.setText("" + (list.get(position).votes));
+                        holder.downvotebtn.setBackground(ContextCompat.getDrawable(context, R.drawable.ic_keyboard_arrow_down_black_24dp));
                     }
                 }
             });
