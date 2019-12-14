@@ -71,56 +71,82 @@
                 android:layout_weight="1"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:padding="4dp">
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:padding="4dp">-->
 
-            <TextView
-                android:id="@+id/papervotes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Uploaded By: Chandan Karfa"
-                android:gravity="center_horizontal"
-                android:textSize="14dp"
-                android:layout_weight="1"/>
-        </LinearLayout>
+            <!--<TextView-->
+                <!--android:id="@+id/papervotes"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Uploaded By: Chandan Karfa"-->
+                <!--android:gravity="center_horizontal"-->
+                <!--android:textSize="14dp"-->
+                <!--android:layout_weight="1"/>-->
+        <!--</LinearLayout>-->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="end"
-            android:padding="8dp"
+            android:padding="4dp"
             >
             <ToggleButton
                 android:id="@+id/upvote"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/ic_keyboard_arrow_up_black_24dp"
+                android:foreground="@drawable/rippleupvote"
+                android:layout_marginRight="0dp"
+                android:textOn=""
+                android:textOff=""
+                />
+            <TextView
+                android:id="@+id/papervotes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="30dp"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:layout_marginRight="12dp"
-                android:textOn="Upvote"
-                android:textOff="Upvote"
-                android:drawableLeft="@drawable/ic_upvote"
-                android:paddingRight="5dp"
-                />
-
+                android:text="0"
+                android:textSize="18dp"
+                android:layout_marginRight="0dp"/>
             <ToggleButton
                 android:id="@+id/downvote"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minHeight="30dp"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:textOn="Downvote"
-                android:textOff="Downvote"
-                android:drawableLeft="@drawable/ic_downvote"
-                android:layout_marginRight="12dp"
-                android:paddingRight="5dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/ic_keyboard_arrow_down_black_24dp"
+                android:foreground="@drawable/rippledownvote"
+                android:textOn=""
+                android:textOff=""
+                android:layout_marginLeft="0dp"
                 />
+            <!--<ToggleButton-->
+                <!--android:id="@+id/upvote"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:minHeight="30dp"-->
+                <!--android:layout_gravity="center_vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_marginRight="12dp"-->
+                <!--android:textOn="Upvote"-->
+                <!--android:textOff="Upvote"-->
+                <!--android:drawableLeft="@drawable/ic_upvote"-->
+                <!--android:paddingRight="5dp"-->
+                <!--/>-->
+
+            <!--<ToggleButton-->
+                <!--android:id="@+id/downvote"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:minHeight="30dp"-->
+                <!--android:layout_gravity="center_vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:textOn="Downvote"-->
+                <!--android:textOff="Downvote"-->
+                <!--android:drawableLeft="@drawable/ic_downvote"-->
+                <!--android:layout_marginRight="12dp"-->
+                <!--android:paddingRight="5dp"-->
+                <!--/>-->
 
             <Button
                 android:id="@+id/paperdownloadbtn"
@@ -128,13 +154,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minHeight="30dp"
-                android:layout_gravity="center_vertical"
                 android:text="Download"
                 android:layout_weight="1"
                 android:background="@drawable/roundedbtnbg"
                 />
-
-
         </LinearLayout>
 
     </LinearLayout>
