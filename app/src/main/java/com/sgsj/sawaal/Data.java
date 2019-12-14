@@ -1,5 +1,6 @@
 package com.sgsj.sawaal;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 
 public class Data {
@@ -13,7 +14,7 @@ public class Data {
         public Integer votes;
         public Uri fileurl;
 
-        public boolean upvoted,downvoted;
+        public Boolean upvoted,downvoted;
 
         Data(String course_code,String uploaderID, String year, String typeofpaper , String filename , String prof, Uri fileurl,
              String key, Integer votes,Boolean upvoted, Boolean downvoted) {

@@ -401,7 +401,8 @@ public class UploadFragment extends Fragment {
 
 
             final String uniqueId = mDatabaseReference.push().getKey();
-            final DatabaseReference dref1 = mDatabaseReference.child(uniqueId);
+            final DatabaseReference dref1 = mDatabaseReference.child(code+"_"+type).child(year).child(uniqueId);
+
             final String file_name =  inputdisplaytext.getText().toString()+"_"+date+"_"+System.currentTimeMillis();
             final HashMap<String,String> mapper = new HashMap<>();
             mapper.put("CourseCode",code);
@@ -411,9 +412,10 @@ public class UploadFragment extends Fragment {
             mapper.put("FileName",file_name);
             mapper.put("Prof",prof);
             mapper.put("uploaderID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-            mapper.put("Course_Year",code+"_"+year);
-            mapper.put("Course_Type",code+"_"+type);
-            mapper.put("Course_Year_Type",code+"_"+year+"_"+type);
+
+//            mapper.put("Course_Year",code+"_"+year);
+//            mapper.put("Course_Type",code+"_"+type);
+//            mapper.put("Course_Year_Type",code+"_"+year+"_"+type);
 
             //Upvotes and Downvotes
             mapper.put("upvoteCount","0");

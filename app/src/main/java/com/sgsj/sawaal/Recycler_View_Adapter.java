@@ -123,7 +123,8 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
 
 
         final String currentUser = auth.getCurrentUser().getEmail();
-        String toRef = "Uploads/"+list.get(position).key;
+        String toRef = "Uploads/"+ list.get(position).course_code+"_"+list.get(position).typeofpaper
+                       + "/" + list.get(position).year + "/"+list.get(position).key;
         final DatabaseReference uploads = FirebaseDatabase.getInstance().getReference(toRef);
 
 
