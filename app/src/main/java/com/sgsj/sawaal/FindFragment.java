@@ -120,6 +120,8 @@ public class FindFragment extends Fragment {
     private Uri downloadUrl;
     private TextInputLayout coursecodein;
     public static ArrayList<HashMap<String, String> > datalist;
+    private Boolean toAddMarker = false;
+    private int i;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -237,7 +239,6 @@ public class FindFragment extends Fragment {
 
                                 Collections.reverse(years);
                                 addPapers(years);
-                                findpdf.revertAnimation();
 
                             } else {
                                 findpdf.revertAnimation();
@@ -383,17 +384,11 @@ public class FindFragment extends Fragment {
 
         final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads").child(code+"_"+type);
 
-        Boolean toAddMarker = false;
         if(years.size()>1){
             toAddMarker = true;
         }
 
-        for(int i=0;i<years.size();i++){
-
-            if(toAddMarker){
-                paperdetails.add(new Data("","",years.get(i),null,null,null,null,null,null
-                ,null,null));
-            }
+        for(i=0;i<years.size();i++){
 
             final int j = i;
             final List<Data> yearPapers = new ArrayList<>();
@@ -444,6 +439,11 @@ public class FindFragment extends Fragment {
                                 }
                             }
                             yearPapers.add(new Data(cc,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
+                        }
+
+                        if(toAddMarker){
+                            paperdetails.add(new Data("","",years.get(j),null,null,null,null,null,null
+                                    ,null,null));
                         }
 
                         Collections.reverse(yearPapers);
