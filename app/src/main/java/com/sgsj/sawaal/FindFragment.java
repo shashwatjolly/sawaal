@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Path;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -40,6 +41,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -208,13 +210,18 @@ public class FindFragment extends Fragment {
                 if(code.equals("")) {
                     coursecodein.setError("Course code cannot be empty");
                     Toast.makeText(getContext(), "Please enter all required information", Toast.LENGTH_SHORT).show();
-//                    Toast.makeText(getContext(), "Course code cannot be empty", Toast.LENGTH_SHORT).show();
                 }
-                else if(year.equals("") && !type.equals("")) {
+                else if (type.equals("")){
+                    btntype.setError("Type can not be empty");
+                    Toast.makeText(getContext(), "Please enter all required information", Toast.LENGTH_SHORT).show();
+                }
+                else if(year.equals("")) {
                     findpdf.startAnimation();
-                    final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads"); //Path in database where to check
-                    Query query = testRef.orderByChild("Course_Type").equalTo(code+"_"+type);
-                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    final List<String> years = new ArrayList<String>();
+
+                    final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads").child(code+"_"+type); //Path in database where to check
+                    testRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.exists()) {
@@ -223,58 +230,18 @@ public class FindFragment extends Fragment {
                                 paperdetails.clear();
                                 for (DataSnapshot issue : dataSnapshot.getChildren()) {
                                     // do something with the individual "issues"
-                                    Log.e("check",issue.getKey().toString());
+                                    Log.e("check", issue.getKey().toString());
 
-                                    String cc = issue.child("CourseCode").getValue().toString();
-                                    String ue = issue.child("uploaderID").getValue().toString();
-                                    String ye = issue.child("Year").getValue().toString();
-                                    String ty = issue.child("Type").getValue().toString();
-                                    String fn = issue.child("FileName").getValue().toString().substring(0,20);
-                                    String pr = issue.child("Prof").getValue().toString();
-                                    Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
-
-                                    Integer totalvotes = Integer.parseInt(issue.child("totalVotes").getValue().toString());
-
-                                    boolean up,down;
-                                    String currentUser = auth.getCurrentUser().getEmail();
-                                    if(!issue.child("upvoters").exists()){
-                                        up=false;
-                                    }
-                                    else{
-                                        List<String> upvoters = (List<String>)issue.child("upvoters").getValue();
-                                        if(upvoters.contains(currentUser)){
-                                            up = true;
-                                        }
-                                        else{
-                                            up = false;
-                                        }
-                                    }
-
-                                    if(!issue.child("downvoters").exists()){
-                                        down=false;
-                                    }
-                                    else{
-                                        List<String> downvoters = (List<String>)issue.child("downvoters").getValue();
-                                        if(downvoters.contains(currentUser)){
-                                            down = true;
-                                        }
-                                        else{
-                                            down = false;
-                                        }
-                                    }
-                                    String key=issue.getKey().toString();
-                                    paperdetails.add(new Data(cc,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
-
-
+                                    years.add(issue.getKey().toString());
                                 }
-                                openList();
+
+                                Collections.reverse(years);
+                                addPapers(years);
                                 findpdf.revertAnimation();
 
-                            }
-                            else
-                            {
+                            } else {
                                 findpdf.revertAnimation();
-                                Toast.makeText(getContext(),"No paper found", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "No paper found", Toast.LENGTH_LONG).show();
                             }
                         }
 
@@ -285,84 +252,10 @@ public class FindFragment extends Fragment {
                     });
 
                 }
-                else if(!year.equals("") && type.equals("")) {
+                else{
                     findpdf.startAnimation();
-                    final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads"); //Path in database where to check
-                    Query query = testRef.orderByChild("Course_Year").equalTo(code+"_"+year);
-                    query.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                // dataSnapshot is the "issue" node with all children with id 0
-//                                Toast.makeText(getContext(),"Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
-                                for (DataSnapshot issue : dataSnapshot.getChildren()) {
-                                    // do something with the individual "issues"
-                                    Log.e("check",issue.getKey().toString());
-
-                                    String cc = issue.child("CourseCode").getValue().toString();
-                                    String ye = issue.child("Year").getValue().toString();
-                                    String ty = issue.child("Type").getValue().toString();
-                                    String fn = issue.child("FileName").getValue().toString().substring(0,20);
-                                    String pr = issue.child("Prof").getValue().toString();
-                                    Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
-                                    String ue = issue.child("uploaderID").getValue().toString();
-
-
-                                    String key=issue.getKey().toString();
-                                    Integer totalvotes = Integer.parseInt(issue.child("totalVotes").getValue().toString());
-
-                                    boolean up,down;
-                                    String currentUser = auth.getCurrentUser().getEmail();
-                                    if(!issue.child("upvoters").exists()){
-                                        up=false;
-                                    }
-                                    else{
-                                        List<String> upvoters = (List<String>)issue.child("upvoters").getValue();
-                                        if(upvoters.contains(currentUser)){
-                                            up = true;
-                                        }
-                                        else{
-                                            up = false;
-                                        }
-                                    }
-
-                                    if(!issue.child("downvoters").exists()){
-                                        down=false;
-                                    }
-                                    else{
-                                        List<String> downvoters = (List<String>)issue.child("downvoters").getValue();
-                                        if(downvoters.contains(currentUser)){
-                                            down = true;
-                                        }
-                                        else{
-                                            down = false;
-                                        }
-                                    }
-                                    paperdetails.add(new Data(cc,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
-
-
-                                }
-                                openList();
-
-                            }
-                            else
-                            {
-                                findpdf.revertAnimation();
-                                Toast.makeText(getContext(),"No paper found", Toast.LENGTH_LONG).show();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-                }
-                else if(!year.equals("") && !type.equals("")) {
-                    findpdf.startAnimation();
-                    final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads"); //Path in database where to check
-                    Query query = testRef.orderByChild("Course_Year_Type").equalTo(code+"_"+year+"_"+type);
+                    final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads").child(code+"_"+type).child(year); //Path in database where to check
+                    Query query = testRef.orderByChild("totalVotes");
                     query.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -418,6 +311,8 @@ public class FindFragment extends Fragment {
 
 
                                 }
+
+                                Collections.reverse(paperdetails);
                                 openList();
 
                             }
@@ -433,85 +328,7 @@ public class FindFragment extends Fragment {
 
                         }
                     });
-
-
                 }
-                else {
-                    findpdf.startAnimation();
-                    final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads"); //Path in database where to check
-                    Query query = testRef.orderByChild("CourseCode").equalTo(code);
-                    query.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                // dataSnapshot is the "issue" node with all children with id 0
-//                                Toast.makeText(getContext(),"Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
-                                for (DataSnapshot issue : dataSnapshot.getChildren()) {
-                                    // do something with the individual "issues"
-                                    Log.e("check",issue.getKey().toString());
-
-                                    String cc = issue.child("CourseCode").getValue().toString();
-
-                                    String ye = issue.child("Year").getValue().toString();
-                                    String ty = issue.child("Type").getValue().toString();
-                                    String fn = issue.child("FileName").getValue().toString().substring(0,20);
-                                    String pr = issue.child("Prof").getValue().toString();
-                                    Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
-                                    String ue = issue.child("uploaderID").getValue().toString();
-
-                                    Integer totalvotes = Integer.parseInt(issue.child("totalVotes").getValue().toString());
-
-                                    boolean up,down;
-                                    String currentUser = auth.getCurrentUser().getEmail();
-                                    if(!issue.child("upvoters").exists()){
-                                        up=false;
-                                    }
-                                    else{
-                                        List<String> upvoters = (List<String>)issue.child("upvoters").getValue();
-                                        if(upvoters.contains(currentUser)){
-                                            up = true;
-                                        }
-                                        else{
-                                            up = false;
-                                        }
-                                    }
-
-                                    if(!issue.child("downvoters").exists()){
-                                        down=false;
-                                    }
-                                    else{
-                                        List<String> downvoters = (List<String>)issue.child("downvoters").getValue();
-                                        if(downvoters.contains(currentUser)){
-                                            down = true;
-                                        }
-                                        else{
-                                            down = false;
-                                        }
-                                    }
-                                    String key=issue.getKey().toString();
-                                    paperdetails.add(new Data(cc,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
-
-
-                                }
-                                openList();
-
-                            }
-                            else
-                            {
-                                findpdf.revertAnimation();
-                                Toast.makeText(getContext(),"No paper found", Toast.LENGTH_LONG).show();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-
-                }
-
             }
         });
 
@@ -555,6 +372,103 @@ public class FindFragment extends Fragment {
         // Commit the transaction
         transaction.commit();
 
+    }
+
+    public void addPapers(final List<String> years){
+
+        final List<Boolean> locks = new ArrayList<Boolean>();
+        for(int i=0;i<years.size();i++){
+            locks.add(false);
+        }
+
+        final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Uploads").child(code+"_"+type);
+
+        Boolean toAddMarker = false;
+        if(years.size()>1){
+            toAddMarker = true;
+        }
+
+        for(int i=0;i<years.size();i++){
+
+            if(toAddMarker){
+                paperdetails.add(new Data("","",years.get(i),null,null,null,null,null,null
+                ,null,null));
+            }
+
+            final int j = i;
+            final List<Data> yearPapers = new ArrayList<>();
+            final DatabaseReference yearDataRef = testRef.child(years.get(i));
+            Query query = yearDataRef.orderByChild("totalVotes");
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot issue : dataSnapshot.getChildren()) {
+                            Log.e("check",issue.getKey().toString());
+
+                            String cc = issue.child("CourseCode").getValue().toString();
+                            String ye = issue.child("Year").getValue().toString();
+                            String ty = issue.child("Type").getValue().toString();
+                            String fn = issue.child("FileName").getValue().toString().substring(0,20);
+                            String pr = issue.child("Prof").getValue().toString();
+                            String ue = issue.child("uploaderID").getValue().toString();
+                            Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
+                            Integer totalvotes = Integer.parseInt(issue.child("totalVotes").getValue().toString());
+                            String key=issue.getKey().toString();
+
+                            boolean up,down;
+                            String currentUser = auth.getCurrentUser().getEmail();
+                            if(!issue.child("upvoters").exists()){
+                                up=false;
+                            }
+                            else{
+                                List<String> upvoters = (List<String>)issue.child("upvoters").getValue();
+                                if(upvoters.contains(currentUser)){
+                                    up = true;
+                                }
+                                else{
+                                    up = false;
+                                }
+                            }
+
+                            if(!issue.child("downvoters").exists()){
+                                down=false;
+                            }
+                            else{
+                                List<String> downvoters = (List<String>)issue.child("downvoters").getValue();
+                                if(downvoters.contains(currentUser)){
+                                    down = true;
+                                }
+                                else{
+                                    down = false;
+                                }
+                            }
+                            yearPapers.add(new Data(cc,ue,ye,ty,fn,pr,furl,key,totalvotes,up,down));
+                        }
+
+                        Collections.reverse(yearPapers);
+                        paperdetails.addAll(yearPapers);
+
+                        locks.set(j,true);
+                        boolean b = true;
+                        for(int k=0;k<years.size();k++){
+                            b = b&locks.get(k);
+                        }
+
+                        if(b){
+                            openList();
+                        }
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+        }
     }
 
     public void getfile() {
