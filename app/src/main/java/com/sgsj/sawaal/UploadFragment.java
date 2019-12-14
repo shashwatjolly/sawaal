@@ -530,7 +530,7 @@ public class UploadFragment extends Fragment {
                     if (dataSnapshot.exists()) {
                         // dataSnapshot is the "issue" node with all children with id 0
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                        builder.setTitle("Upload Paper?");
+                        builder.setTitle("Duplicate Paper");
                         final View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.uploadcheckdialog, (ViewGroup) getView().findViewById(android.R.id.content), false);
 
                         TextView coursecode = viewInflated.findViewById(R.id.papercoursecode);
@@ -584,6 +584,13 @@ public class UploadFragment extends Fragment {
 
                         AlertDialog uploadcheckdialog = builder.create();
                         uploadcheckdialog.show();
+                        uploadcheckdialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog)
+                            {
+                                uploadpdf.revertAnimation();
+                            }
+                        });
                         // GIVE HACK OPTION
                     } else {
                         uploadFile(file_uri);
