@@ -584,6 +584,13 @@ public class UploadFragment extends Fragment {
 
                         AlertDialog uploadcheckdialog = builder.create();
                         uploadcheckdialog.show();
+                        uploadcheckdialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog)
+                            {
+                                uploadpdf.revertAnimation();
+                            }
+                        });
                         // GIVE HACK OPTION
                     } else {
                         uploadFile(file_uri);
