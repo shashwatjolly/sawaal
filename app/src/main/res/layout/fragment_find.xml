@@ -68,31 +68,6 @@
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginTop="8dp"
-                >
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/findyear"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Year of Examination (Eg: 2015)"
-                    android:inputType="number" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!--<EditText-->
-            <!--android:id="@+id/regcollege"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:hint="College"-->
-            <!--android:inputType="textEmailAddress" />-->
-            <!--<Spinner-->
-                <!--android:id="@+id/papercollege"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:spinnerMode="dropdown" />-->
             <Button
                 android:id="@+id/typeofpaper"
                 android:layout_width="match_parent"
@@ -110,6 +85,32 @@
                 android:textSize="18dp"
                 android:stateListAnimator="@null"
                 />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/findyear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Year of Examination (Optional)"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--<EditText-->
+            <!--android:id="@+id/regcollege"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:hint="College"-->
+            <!--android:inputType="textEmailAddress" />-->
+            <!--<Spinner-->
+                <!--android:id="@+id/papercollege"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:spinnerMode="dropdown" />-->
 
 
             <!--<EditText-->
