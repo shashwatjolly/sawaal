@@ -233,9 +233,7 @@ public class FindFragment extends Fragment {
                                     String pr = issue.child("Prof").getValue().toString();
                                     Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
 
-                                    Integer upvotes = Integer.parseInt(issue.child("upvoteCount").getValue().toString());
-                                    Integer downvotes = Integer.parseInt(issue.child("downvoteCount").getValue().toString());
-                                    Integer totalvotes = upvotes-downvotes;
+                                    Integer totalvotes = Integer.parseInt(issue.child("totalVotes").getValue().toString());
 
                                     boolean up,down;
                                     String currentUser = auth.getCurrentUser().getEmail();
@@ -311,9 +309,7 @@ public class FindFragment extends Fragment {
 
 
                                     String key=issue.getKey().toString();
-                                    Integer upvotes = Integer.parseInt(issue.child("upvoteCount").getValue().toString());
-                                    Integer downvotes = Integer.parseInt(issue.child("downvoteCount").getValue().toString());
-                                    Integer totalvotes = upvotes-downvotes;
+                                    Integer totalvotes = Integer.parseInt(issue.child("totalVotes").getValue().toString());
 
                                     boolean up,down;
                                     String currentUser = auth.getCurrentUser().getEmail();
@@ -387,9 +383,7 @@ public class FindFragment extends Fragment {
 
                                     Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
 
-                                    Integer upvotes = Integer.parseInt(issue.child("upvoteCount").getValue().toString());
-                                    Integer downvotes = Integer.parseInt(issue.child("downvoteCount").getValue().toString());
-                                    Integer totalvotes = upvotes-downvotes;
+                                    Integer totalvotes = Integer.parseInt(issue.child("totalVotes").getValue().toString());
 
                                     String key=issue.getKey().toString();
 
@@ -465,9 +459,8 @@ public class FindFragment extends Fragment {
                                     Uri furl = Uri.parse(issue.child("FileUrl").getValue().toString());
                                     String ue = issue.child("uploaderID").getValue().toString();
 
-                                    Integer upvotes = Integer.parseInt(issue.child("upvoteCount").getValue().toString());
-                                    Integer downvotes = Integer.parseInt(issue.child("downvoteCount").getValue().toString());
-                                    Integer totalvotes = upvotes-downvotes;
+                                    Integer totalvotes = Integer.parseInt(issue.child("totalVotes").getValue().toString());
+
                                     boolean up,down;
                                     String currentUser = auth.getCurrentUser().getEmail();
                                     if(!issue.child("upvoters").exists()){

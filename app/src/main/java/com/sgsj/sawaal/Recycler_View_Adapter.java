@@ -237,6 +237,8 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
         final DatabaseReference ref3 = ref5.child("upvoters");
         final DatabaseReference ref4 = ref5.child("downvoters");
 
+        final DatabaseReference ref6 = ref5.child("totalVotes");
+
         ref1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -404,7 +406,37 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<View_Holder> {
         });
 
 
+        // Updating total votes of paper
+        final Integer votesUpdate = (upvupd-downvupd);
+        ref6.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ref6.runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        if(mutableData.getValue() != null) {
+                            String scrstr = mutableData.getValue().toString();
+                            Integer score = Integer.parseInt(scrstr);
+                            score += votesUpdate;
+                            mutableData.setValue(score);
+                        }
+                        return Transaction.success(mutableData);
 
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b,
+                                           DataSnapshot dataSnapshot) {
+                        // Transaction completed
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
 
     }
 
