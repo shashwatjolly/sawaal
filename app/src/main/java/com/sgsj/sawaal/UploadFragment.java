@@ -520,6 +520,31 @@ public class UploadFragment extends Fragment {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         // dataSnapshot is the "issue" node with all children with id 0
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setTitle("Hack this Paper");
+                        final View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.uploadcheckdialog, (ViewGroup) getView().findViewById(android.R.id.content), false);
+                        builder.setView(viewInflated);
+                        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                            }
+                        });
+                        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+                        AlertDialog uploadcheckdialog = builder.create();
+                        uploadcheckdialog.show();
+
+
+
+
+
                         Toast.makeText(getContext(), "Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
                         uploadpdf.revertAnimation();
                         // GIVE HACK OPTION
