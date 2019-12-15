@@ -225,11 +225,8 @@ public class UploadFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 code = inputcode.getText().toString().replaceAll("\\s","").toUpperCase();
-                Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
                 prof = inputprof.getText().toString();
-                Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
                 year = inputyear.getText().toString();
-                Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
                 Date datetemp = Calendar.getInstance().getTime();
                 SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
                 date = df.format(datetemp);
@@ -304,37 +301,6 @@ public class UploadFragment extends Fragment {
 
     }
 
-//    public void extractname()
-//    {
-//        final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users"); //Path in database where to check
-//        Query query = testRef.orderByChild("Email").equalTo(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-//        query.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists()) {
-//                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
-//                        // do something with the individual "issues"
-//                        Log.e("check",issue.getKey().toString());
-//
-//                        fullname = issue.child("Username").getValue().toString();
-//                        checkPaperandUpload();
-//
-//
-//                    }
-//
-//                } else {
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-//
-//    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -362,7 +328,6 @@ public class UploadFragment extends Fragment {
                 } else if (uriString.startsWith("file://")) {
                     displayName = myFile.getName();
                 }
-                Toast.makeText(getContext(), displayName, Toast.LENGTH_SHORT).show();
                 inputdisplaytext.setText(displayName);
                 file_uri = data.getData();
             }else{
