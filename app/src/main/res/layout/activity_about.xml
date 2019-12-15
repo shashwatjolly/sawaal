@@ -23,15 +23,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp">
                 <LinearLayout
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="center"
                     android:layout_marginRight="18dp">
-                    <ImageView
-                        android:layout_width="42dp"
-                        android:layout_height="42dp"
-                        android:background="@mipmap/ic_launcher_round"/>
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@mipmap/logo"
+                        app:civ_border_width="1dp"
+                        app:civ_border_color="@color/black"/>
                 </LinearLayout>
 
                 <TextView
@@ -46,8 +48,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <LinearLayout
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="center"
                     android:layout_marginRight="18dp">
@@ -184,8 +186,8 @@
                 android:clickable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <LinearLayout
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="center"
                     android:layout_marginRight="18dp">
@@ -209,8 +211,8 @@
                 android:clickable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <LinearLayout
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="center"
                     android:layout_marginRight="18dp">
@@ -234,8 +236,8 @@
                 android:clickable="true"
                 android:foreground="?attr/selectableItemBackground">
                 <LinearLayout
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="center"
                     android:layout_marginRight="18dp">
