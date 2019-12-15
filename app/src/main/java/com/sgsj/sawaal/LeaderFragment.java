@@ -150,11 +150,10 @@ public class LeaderFragment extends Fragment {
 
     }
 
-    private void loadRecyclerViewData()
-    {
+    private void loadRecyclerViewData() {
         // Showing refresh animation before making http call
         newdata.clear();
-        isLoading=false;
+        isLoading = false;
         lastKnownScore = Integer.MAX_VALUE;
         final DatabaseReference testRef = FirebaseDatabase.getInstance().getReference().child("Users"); //Path in database where to check
         Query query = testRef.orderByChild("Score").limitToLast(tot);
@@ -166,18 +165,18 @@ public class LeaderFragment extends Fragment {
 //                                Toast.makeText(getContext(),"Paper already present. You can check if it is valid and report it otherwise.", Toast.LENGTH_LONG).show();
                     for (DataSnapshot issue : dataSnapshot.getChildren()) {
                         // do something with the individual "issues"
-                        if(issue.getKey().toString().equals("Admins"))
+                        if (issue.getKey().toString().equals("Admins"))
                             continue;
-                        Log.e("lp",issue.getKey());
-                        Log.e("leader",issue.child("Name").getValue().toString());
+                        Log.e("lp", issue.getKey());
+                        Log.e("leader", issue.child("Name").getValue().toString());
                         ImageView iv = new ImageView(getContext());
                         iv.setImageResource(R.drawable.ic_launcher_background);
                         lastKnownScore = min(lastKnownScore, Integer.valueOf(issue.child("Score").getValue().toString()));
-                        newdata.add(new Data1(issue.child("Name").getValue().toString(),issue.child("Score").getValue().toString(), iv, issue.getKey()));
+                        newdata.add(new Data1(issue.child("Name").getValue().toString(), issue.child("Score").getValue().toString(), iv, issue.getKey()));
 
                     }
                     Collections.reverse(newdata);
-                    if(getActivity()!=null) {
+                    if (getActivity() != null) {
                         Log.e("TAG", "onDataChange: hmm");
                         int size = data.size();
                         data.clear();
@@ -187,9 +186,7 @@ public class LeaderFragment extends Fragment {
                         adapter.notifyDataSetChanged();
                     }
 
-                }
-                else
-                {
+                } else {
 //                                uploadFile(file_uri);
                 }
             }
@@ -199,31 +196,8 @@ public class LeaderFragment extends Fragment {
 
             }
         });
-
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.upload_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_favorite) {
-            Toast.makeText(getContext(), "Action clicked", Toast.LENGTH_LONG).show();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
