@@ -253,7 +253,7 @@ public class HomeActivity extends AppCompatActivity {
                         Toast.makeText(HomeActivity.this, "My Cart",Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.about:
-                        Intent intent = new Intent(HomeActivity.this, About.class);
+                        Intent intent = new Intent(HomeActivity.this, AboutActivity.class);
                         startActivity(intent);
                         return true;
                         default:

@@ -54,6 +54,22 @@ public class About extends MaterialAboutActivity {
                 .icon(R.drawable.ic_account_circle_black_24dp)
                 .build());
 
+        MaterialAboutCard.Builder suggestionCardBuilder = new MaterialAboutCard.Builder();
+        authorCardBuilder.title("Suggestions?");
+//        authorCardBuilder.titleColor(ContextCompat.getColor(c, R.color.colorAccent));
+
+        suggestionCardBuilder.addItem(new MaterialAboutActionItem.Builder()
+                .text("Feedback")
+                .subText("facebook.com/shashwatjolly")
+                .icon(R.drawable.ic_account_circle_black_24dp)
+                .build());
+
+        suggestionCardBuilder.addItem(new MaterialAboutActionItem.Builder()
+                .text("Shaurya Gomber")
+                .subText("facebook.com/shauryagomber")
+                .icon(R.drawable.ic_account_circle_black_24dp)
+                .build());
+
 
 //        MaterialAboutCard.Builder otherCardBuilder = new MaterialAboutCard.Builder();
 //        otherCardBuilder.title("Other");
