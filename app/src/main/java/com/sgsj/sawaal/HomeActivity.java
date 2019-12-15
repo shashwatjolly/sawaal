@@ -242,15 +242,12 @@ public class HomeActivity extends AppCompatActivity {
                 {
                     case R.id.find:
                         getSupportFragmentManager().beginTransaction().replace(R.id.frame_container, new FindFragment()).commit();
-                        Toast.makeText(HomeActivity.this, "My Account", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.upload:
                         getSupportFragmentManager().beginTransaction().replace(R.id.frame_container, new UploadFragment()).commit();
-                        Toast.makeText(HomeActivity.this, "Settings",Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.leader:
                         getSupportFragmentManager().beginTransaction().replace(R.id.frame_container, new LeaderFragment()).commit();
-                        Toast.makeText(HomeActivity.this, "My Cart",Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.about:
                         Intent intent = new Intent(HomeActivity.this, AboutActivity.class);
