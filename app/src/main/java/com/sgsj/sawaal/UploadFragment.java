@@ -131,7 +131,7 @@ public class UploadFragment extends Fragment {
     private Button browsepdf,btntype;
     private EditText inputcode, inputprof, inputyear;
     private TextView inputdisplaytext;
-    private String code, college, prof, year, date, type="Quiz 1", scorestr ,fullname;
+    private String code, college, prof, year, date, type="Quiz 1", scorestr ,fullname, size;
     private ProgressBar progressBar;
     private ProgressDialog progressDialog;
     private StorageReference mStorageReference;
@@ -227,6 +227,19 @@ public class UploadFragment extends Fragment {
                 code = inputcode.getText().toString().replaceAll("\\s","").toUpperCase();
                 prof = inputprof.getText().toString();
                 year = inputyear.getText().toString();
+
+                if(Integer.parseInt(size)>5000000) {
+                    Toast.makeText(getContext(), "PDF file should have size less than 5 MB", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(!code.matches("[a-zA-Z]{2}\\d{3}")) {
+                    Toast.makeText(getContext(), "Enter a valid course code", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(Integer.parseInt(year)<1994 || Integer.parseInt(year)>Calendar.getInstance().get(Calendar.YEAR)) {
+                    Toast.makeText(getContext(), "Enter a year from 1994 - " + Calendar.getInstance().get(Calendar.YEAR), Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Date datetemp = Calendar.getInstance().getTime();
                 SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
                 date = df.format(datetemp);
@@ -321,6 +334,9 @@ public class UploadFragment extends Fragment {
                         cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
                         if (cursor != null && cursor.moveToFirst()) {
                             displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                            size = cursor.getString(cursor.getColumnIndex(OpenableColumns.SIZE));
+                            Log.e("size of pdf", size);
+
                         }
                     } finally {
                         cursor.close();
