@@ -64,9 +64,9 @@ public class SplashActivity extends AppCompatActivity {
             PaperOnboardingPage scr3 = new PaperOnboardingPage("Upload",
                     "The database is crowdsourced from the IITG Junta itself. We believe in the motto \"Maggo and let Maggo\"",
                     Color.parseColor("#9B90BC"), R.drawable.ic_cloud_upload_black_128dp, R.drawable.ic_add_circle_outline_black_24dp);
-            PaperOnboardingPage scr4 = new PaperOnboardingPage("Hack",
-                    "You can report any paper you find to be faulty so we can improve our database and keep it up to date",
-                    Color.parseColor("#81c784"), R.drawable.ic_report_black_128dp, R.drawable.ic_info_outline_black_24dp);
+            PaperOnboardingPage scr4 = new PaperOnboardingPage("Upvote/Downvote",
+                    "Vote on papers to help others by moving the best version to the top",
+                    Color.parseColor("#81c784"), R.drawable.ic_thumbs_up_down_black_128dp, R.drawable.ic_info_outline_black_24dp);
             PaperOnboardingPage scr5 = new PaperOnboardingPage("Let's Get Started!",
                     "Swipe right to begin :)",
                     Color.parseColor("#ffee58"), R.drawable.ic_navigate_next_black_128dp, R.drawable.ic_favorite_border_black_24dp);
