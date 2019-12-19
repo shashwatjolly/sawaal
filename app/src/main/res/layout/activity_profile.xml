@@ -133,5 +133,13 @@
                 android:paddingLeft="20dp"
                 android:text="..."/>
         </LinearLayout>
+        <Button
+            android:id="@+id/signout"
+            android:layout_marginTop="24dp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign out"
+            android:background="@drawable/roundedbtnbg"/>
     </LinearLayout>
 </LinearLayout>
