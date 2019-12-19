@@ -111,8 +111,9 @@ public class SplashActivity extends AppCompatActivity {
                                                 info.put("Email", auth.getCurrentUser().getEmail());
                                                 info.put("Name", auth.getCurrentUser().getDisplayName());
                                                 info.put("Rollno", authResult.getAdditionalUserInfo().getProfile().get("surname").toString());
-                                                info.put("Score", "0");
                                                 db.child("Users").child(auth.getCurrentUser().getUid()).setValue(info);
+
+                                                db.child("Users").child(auth.getCurrentUser().getUid()).child("Score").setValue(0);
                                             }
                                             Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
                                             startActivity(intent);
@@ -164,8 +165,9 @@ public class SplashActivity extends AppCompatActivity {
                                                         if(authResult.getAdditionalUserInfo().isNewUser()) {
                                                             final HashMap<String, String> info = new HashMap<>();
                                                             info.put("Name", auth.getCurrentUser().getDisplayName());
-                                                            info.put("Score", "0");
                                                             db.child(auth.getCurrentUser().getEmail()).setValue(info);
+                                                            db.child("Users").child(auth.getCurrentUser().getUid()).child("Score").setValue(0);
+
                                                         }
                                                         Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
                                                         startActivity(intent);
@@ -197,8 +199,8 @@ public class SplashActivity extends AppCompatActivity {
                                     if(authResult.getAdditionalUserInfo().isNewUser()) {
                                         final HashMap<String, String> info = new HashMap<>();
                                         info.put("Name", auth.getCurrentUser().getDisplayName());
-                                        info.put("Score", "0");
                                         db.child(auth.getCurrentUser().getEmail()).setValue(info);
+                                        db.child("Users").child(auth.getCurrentUser().getUid()).child("Score").setValue(0);
                                     }
                                     Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
                                     startActivity(intent);

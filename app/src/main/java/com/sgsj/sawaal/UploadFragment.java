@@ -386,9 +386,6 @@ public class UploadFragment extends Fragment {
 //            mapper.put("Course_Type",code+"_"+type);
 //            mapper.put("Course_Year_Type",code+"_"+year+"_"+type);
 
-            //Upvotes and Downvotes
-            mapper.put("upvoteCount","0");
-            mapper.put("downvoteCount","0");
             final List<String> mails = new ArrayList<String>();
             mails.add("Dummy Mail");
 
@@ -424,6 +421,10 @@ public class UploadFragment extends Fragment {
 
                                     //Total Votes
                                     dref1.child("totalVotes").setValue(0);
+
+                                    //Upvotes and Downvotes
+                                    dref1.child("upvoteCount").setValue(0);
+                                    dref1.child("downvoteCount").setValue(0);
 
 
                                     increaseScoreUpload();
