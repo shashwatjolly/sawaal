@@ -260,7 +260,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<RecyclerView.Vie
                             String votes = mutableData.getValue().toString();
                             Integer vot = Integer.parseInt(votes);
                             vot = vot + upvupd;
-                            mutableData.setValue(vot.toString());
+                            mutableData.setValue(vot);
                         }
                         return Transaction.success(mutableData);
 
@@ -291,7 +291,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<RecyclerView.Vie
                             String votes = mutableData.getValue().toString();
                             Integer vot = Integer.parseInt(votes);
                             vot = vot + downvupd;
-                            mutableData.setValue(vot.toString());
+                            mutableData.setValue(vot);
                         }
                         return Transaction.success(mutableData);
 
@@ -396,7 +396,7 @@ public class Recycler_View_Adapter extends RecyclerView.Adapter<RecyclerView.Vie
                             String scrstr = mutableData.getValue().toString();
                             Integer score = Integer.parseInt(scrstr);
                             score += scoreUpdate;
-                            mutableData.setValue(score.toString());
+                            mutableData.setValue(score);
                         }
                         return Transaction.success(mutableData);
 
