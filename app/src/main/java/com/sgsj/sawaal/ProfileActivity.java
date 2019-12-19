@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
@@ -60,6 +61,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView name, score, email, rollno;
     private CircleImageView profileimg;
     private LinearLayout ll;
+    private Button signout;
 //    public String PREF_ACCESS_TOKEN = "access_token";
 //    public  String PREFS_NAME = "MyPrefsFile";
 //    SharedPreferences prefs;
@@ -76,6 +78,7 @@ public class ProfileActivity extends AppCompatActivity {
         rollno = findViewById(R.id.profilerollno);
         profileimg = findViewById(R.id.profileimg);
         ll = findViewById(R.id.llprofile);
+        signout = findViewById(R.id.signout);
 
         name.setText(auth.getCurrentUser().getDisplayName());
         email.setText(auth.getCurrentUser().getEmail());
@@ -98,6 +101,17 @@ public class ProfileActivity extends AppCompatActivity {
         int colorbg = ColorUtils.blendARGB(color, Color.BLACK, 0.4f);
         ll.setBackgroundColor(colorbg);
         name.setTextColor(getContrastColor(colorbg));
+
+        signout.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                   auth.signOut();
+                   Toast.makeText(v.getContext(), "Signed out", Toast.LENGTH_SHORT).show();
+                   Intent intent = new Intent(getApplicationContext(), SplashActivity.class);
+                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                   startActivity(intent);
+               }
+           });
 
         // Flow to get profile image from outlook
 
@@ -216,6 +230,8 @@ public class ProfileActivity extends AppCompatActivity {
 //        getWindow().setExitTransition(fade);
 
     }
+
+
 
     public void extractscore()
     {
